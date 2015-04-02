@@ -19,6 +19,7 @@
 + (XMPPPresence *)presence;
 + (XMPPPresence *)presenceWithType:(NSString *)type;
 + (XMPPPresence *)presenceWithType:(NSString *)type to:(XMPPJID *)to;
++ (XMPPPresence *)presenceWithStatus:(NSString *)status;
 
 - (id)init;
 - (id)initWithType:(NSString *)type;

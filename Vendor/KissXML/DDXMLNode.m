@@ -382,7 +382,7 @@ static void MarkDeath(void *xmlPtr, DDXMLNode *wrapper);
 #pragma mark Properties
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-- (DDXMLNodeKind)kind
+- (QBDDXMLNodeKind)kind
 {
 #if DDXML_DEBUG_MEMORY_ISSUES
 	DDXMLNotZombieAssert();
@@ -391,7 +391,7 @@ static void MarkDeath(void *xmlPtr, DDXMLNode *wrapper);
 	if (genericPtr != NULL)
 		return genericPtr->type;
 	else
-		return DDXMLInvalidKind;
+		return QBDDXMLInvalidKind;
 }
 
 - (void)setName:(NSString *)name
@@ -1146,13 +1146,13 @@ static void MarkDeath(void *xmlPtr, DDXMLNode *wrapper);
 	// once parsed.
 	// Disabled by default
 	
-	if (options & DDXMLNodeCompactEmptyElement)
+	if (options & QBDDXMLNodeCompactEmptyElement)
 		xmlSaveNoEmptyTags = 0;
 	else
 		xmlSaveNoEmptyTags = 1;
 	
 	int format = 0;
-	if (options & DDXMLNodePrettyPrint)
+	if (options & QBDDXMLNodePrettyPrint)
 	{
 		format = 1;
 		xmlIndentTreeOutput = 1;
@@ -1171,7 +1171,7 @@ static void MarkDeath(void *xmlPtr, DDXMLNode *wrapper);
 		return nil;
 	}
 	
-	if ([self kind] == DDXMLTextKind)
+	if ([self kind] == QBDDXMLTextKind)
 	{
 		NSString *result = [NSString stringWithUTF8String:(const char *)bufferPtr->content];
 		
@@ -2792,8 +2792,8 @@ BOOL DDXMLIsZombie(void *xmlPtr, DDXMLNode *wrapper)
 
 // #pragma mark Properties
 
-- (DDXMLNodeKind)kind {
-	return DDXMLInvalidKind;
+- (QBDDXMLNodeKind)kind {
+	return QBDDXMLInvalidKind;
 }
 
 - (void)setName:(NSString *)name { }

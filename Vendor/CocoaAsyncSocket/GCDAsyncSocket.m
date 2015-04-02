@@ -108,58 +108,58 @@ static const int logLevel = GCDAsyncSocketLogLevel;
 #define SOCKET_NULL -1
 
 
-NSString *const GCDAsyncSocketException = @"GCDAsyncSocketException";
-NSString *const GCDAsyncSocketErrorDomain = @"GCDAsyncSocketErrorDomain";
+NSString *const QBGCDAsyncSocketException = @"GCDAsyncSocketException";
+NSString *const QBGCDAsyncSocketErrorDomain = @"GCDAsyncSocketErrorDomain";
 
-NSString *const GCDAsyncSocketQueueName = @"GCDAsyncSocket";
-NSString *const GCDAsyncSocketThreadName = @"GCDAsyncSocket-CFStream";
+NSString *const QBGCDAsyncSocketQueueName = @"GCDAsyncSocket";
+NSString *const QBGCDAsyncSocketThreadName = @"GCDAsyncSocket-CFStream";
 
-NSString *const GCDAsyncSocketManuallyEvaluateTrust = @"GCDAsyncSocketManuallyEvaluateTrust";
+NSString *const QBGCDAsyncSocketManuallyEvaluateTrust = @"GCDAsyncSocketManuallyEvaluateTrust";
 #if TARGET_OS_IPHONE
-NSString *const GCDAsyncSocketUseCFStreamForTLS = @"GCDAsyncSocketUseCFStreamForTLS";
+NSString *const QBGCDAsyncSocketUseCFStreamForTLS = @"GCDAsyncSocketUseCFStreamForTLS";
 #endif
-NSString *const GCDAsyncSocketSSLPeerID = @"GCDAsyncSocketSSLPeerID";
-NSString *const GCDAsyncSocketSSLProtocolVersionMin = @"GCDAsyncSocketSSLProtocolVersionMin";
-NSString *const GCDAsyncSocketSSLProtocolVersionMax = @"GCDAsyncSocketSSLProtocolVersionMax";
-NSString *const GCDAsyncSocketSSLSessionOptionFalseStart = @"GCDAsyncSocketSSLSessionOptionFalseStart";
-NSString *const GCDAsyncSocketSSLSessionOptionSendOneByteRecord = @"GCDAsyncSocketSSLSessionOptionSendOneByteRecord";
-NSString *const GCDAsyncSocketSSLCipherSuites = @"GCDAsyncSocketSSLCipherSuites";
+NSString *const QBGCDAsyncSocketSSLPeerID = @"GCDAsyncSocketSSLPeerID";
+NSString *const QBGCDAsyncSocketSSLProtocolVersionMin = @"GCDAsyncSocketSSLProtocolVersionMin";
+NSString *const QBGCDAsyncSocketSSLProtocolVersionMax = @"GCDAsyncSocketSSLProtocolVersionMax";
+NSString *const QBGCDAsyncSocketSSLSessionOptionFalseStart = @"GCDAsyncSocketSSLSessionOptionFalseStart";
+NSString *const QBGCDAsyncSocketSSLSessionOptionSendOneByteRecord = @"GCDAsyncSocketSSLSessionOptionSendOneByteRecord";
+NSString *const QBGCDAsyncSocketSSLCipherSuites = @"GCDAsyncSocketSSLCipherSuites";
 #if !TARGET_OS_IPHONE
-NSString *const GCDAsyncSocketSSLDiffieHellmanParameters = @"GCDAsyncSocketSSLDiffieHellmanParameters";
+NSString *const QBGCDAsyncSocketSSLDiffieHellmanParameters = @"GCDAsyncSocketSSLDiffieHellmanParameters";
 #endif
 
-enum GCDAsyncSocketFlags
+enum QBGCDAsyncSocketFlags
 {
-	kSocketStarted                 = 1 <<  0,  // If set, socket has been started (accepting/connecting)
-	kConnected                     = 1 <<  1,  // If set, the socket is connected
-	kForbidReadsWrites             = 1 <<  2,  // If set, no new reads or writes are allowed
-	kReadsPaused                   = 1 <<  3,  // If set, reads are paused due to possible timeout
-	kWritesPaused                  = 1 <<  4,  // If set, writes are paused due to possible timeout
-	kDisconnectAfterReads          = 1 <<  5,  // If set, disconnect after no more reads are queued
-	kDisconnectAfterWrites         = 1 <<  6,  // If set, disconnect after no more writes are queued
-	kSocketCanAcceptBytes          = 1 <<  7,  // If set, we know socket can accept bytes. If unset, it's unknown.
-	kReadSourceSuspended           = 1 <<  8,  // If set, the read source is suspended
-	kWriteSourceSuspended          = 1 <<  9,  // If set, the write source is suspended
-	kQueuedTLS                     = 1 << 10,  // If set, we've queued an upgrade to TLS
-	kStartingReadTLS               = 1 << 11,  // If set, we're waiting for TLS negotiation to complete
-	kStartingWriteTLS              = 1 << 12,  // If set, we're waiting for TLS negotiation to complete
-	kSocketSecure                  = 1 << 13,  // If set, socket is using secure communication via SSL/TLS
-	kSocketHasReadEOF              = 1 << 14,  // If set, we have read EOF from socket
-	kReadStreamClosed              = 1 << 15,  // If set, we've read EOF plus prebuffer has been drained
-	kDealloc                       = 1 << 16,  // If set, the socket is being deallocated
+    kSocketStarted                 = 1 <<  0,  // If set, socket has been started (accepting/connecting)
+    kConnected                     = 1 <<  1,  // If set, the socket is connected
+    kForbidReadsWrites             = 1 <<  2,  // If set, no new reads or writes are allowed
+    kReadsPaused                   = 1 <<  3,  // If set, reads are paused due to possible timeout
+    kWritesPaused                  = 1 <<  4,  // If set, writes are paused due to possible timeout
+    kDisconnectAfterReads          = 1 <<  5,  // If set, disconnect after no more reads are queued
+    kDisconnectAfterWrites         = 1 <<  6,  // If set, disconnect after no more writes are queued
+    kSocketCanAcceptBytes          = 1 <<  7,  // If set, we know socket can accept bytes. If unset, it's unknown.
+    kReadSourceSuspended           = 1 <<  8,  // If set, the read source is suspended
+    kWriteSourceSuspended          = 1 <<  9,  // If set, the write source is suspended
+    kQueuedTLS                     = 1 << 10,  // If set, we've queued an upgrade to TLS
+    kStartingReadTLS               = 1 << 11,  // If set, we're waiting for TLS negotiation to complete
+    kStartingWriteTLS              = 1 << 12,  // If set, we're waiting for TLS negotiation to complete
+    kSocketSecure                  = 1 << 13,  // If set, socket is using secure communication via SSL/TLS
+    kSocketHasReadEOF              = 1 << 14,  // If set, we have read EOF from socket
+    kReadStreamClosed              = 1 << 15,  // If set, we've read EOF plus prebuffer has been drained
+    kDealloc                       = 1 << 16,  // If set, the socket is being deallocated
 #if TARGET_OS_IPHONE
-	kAddedStreamsToRunLoop         = 1 << 17,  // If set, CFStreams have been added to listener thread
-	kUsingCFStreamForTLS           = 1 << 18,  // If set, we're forced to use CFStream instead of SecureTransport
-	kSecureSocketHasBytesAvailable = 1 << 19,  // If set, CFReadStream has notified us of bytes available
+    kAddedStreamsToRunLoop         = 1 << 17,  // If set, CFStreams have been added to listener thread
+    kUsingCFStreamForTLS           = 1 << 18,  // If set, we're forced to use CFStream instead of SecureTransport
+    kSecureSocketHasBytesAvailable = 1 << 19,  // If set, CFReadStream has notified us of bytes available
 #endif
 };
 
-enum GCDAsyncSocketConfig
+enum QBGCDAsyncSocketConfig
 {
-	kIPv4Disabled              = 1 << 0,  // If set, IPv4 is disabled
-	kIPv6Disabled              = 1 << 1,  // If set, IPv6 is disabled
-	kPreferIPv6                = 1 << 2,  // If set, IPv6 is preferred over IPv4
-	kAllowHalfDuplexConnection = 1 << 3,  // If set, the socket will stay open even if the read stream closes
+    kIPv4Disabled              = 1 << 0,  // If set, IPv4 is disabled
+    kIPv6Disabled              = 1 << 1,  // If set, IPv6 is disabled
+    kPreferIPv6                = 1 << 2,  // If set, IPv6 is preferred over IPv4
+    kAllowHalfDuplexConnection = 1 << 3,  // If set, the socket will stay open even if the read stream closes
 };
 
 #if TARGET_OS_IPHONE
@@ -955,7 +955,7 @@ enum GCDAsyncSocketConfig
 		}
 		else
 		{
-			socketQueue = dispatch_queue_create([GCDAsyncSocketQueueName UTF8String], NULL);
+			socketQueue = dispatch_queue_create([QBGCDAsyncSocketQueueName UTF8String], NULL);
 		}
 		
 		// The dispatch_queue_set_specific() and dispatch_get_specific() functions take a "void *key" parameter.
@@ -2788,14 +2788,14 @@ enum GCDAsyncSocketConfig
 {
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketBadConfigError userInfo:userInfo];
+	return [NSError errorWithDomain:QBGCDAsyncSocketErrorDomain code:GCDAsyncSocketBadConfigError userInfo:userInfo];
 }
 
 - (NSError *)badParamError:(NSString *)errMsg
 {
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketBadParamError userInfo:userInfo];
+	return [NSError errorWithDomain:QBGCDAsyncSocketErrorDomain code:GCDAsyncSocketBadParamError userInfo:userInfo];
 }
 
 + (NSError *)gaiError:(int)gai_error
@@ -2839,7 +2839,7 @@ enum GCDAsyncSocketConfig
 	
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketConnectTimeoutError userInfo:userInfo];
+	return [NSError errorWithDomain:QBGCDAsyncSocketErrorDomain code:GCDAsyncSocketConnectTimeoutError userInfo:userInfo];
 }
 
 /**
@@ -2853,7 +2853,7 @@ enum GCDAsyncSocketConfig
 	
 	NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketReadMaxedOutError userInfo:info];
+	return [NSError errorWithDomain:QBGCDAsyncSocketErrorDomain code:GCDAsyncSocketReadMaxedOutError userInfo:info];
 }
 
 /**
@@ -2867,7 +2867,7 @@ enum GCDAsyncSocketConfig
 	
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketReadTimeoutError userInfo:userInfo];
+	return [NSError errorWithDomain:QBGCDAsyncSocketErrorDomain code:GCDAsyncSocketReadTimeoutError userInfo:userInfo];
 }
 
 /**
@@ -2881,7 +2881,7 @@ enum GCDAsyncSocketConfig
 	
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketWriteTimeoutError userInfo:userInfo];
+	return [NSError errorWithDomain:QBGCDAsyncSocketErrorDomain code:GCDAsyncSocketWriteTimeoutError userInfo:userInfo];
 }
 
 - (NSError *)connectionClosedError
@@ -2892,14 +2892,14 @@ enum GCDAsyncSocketConfig
 	
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketClosedError userInfo:userInfo];
+	return [NSError errorWithDomain:QBGCDAsyncSocketErrorDomain code:GCDAsyncSocketClosedError userInfo:userInfo];
 }
 
 - (NSError *)otherError:(NSString *)errMsg
 {
 	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
 	
-	return [NSError errorWithDomain:GCDAsyncSocketErrorDomain code:GCDAsyncSocketOtherError userInfo:userInfo];
+	return [NSError errorWithDomain:QBGCDAsyncSocketErrorDomain code:GCDAsyncSocketOtherError userInfo:userInfo];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5832,7 +5832,7 @@ enum GCDAsyncSocketConfig
 			GCDAsyncSpecialPacket *tlsPacket = (GCDAsyncSpecialPacket *)currentRead;
 			NSDictionary *tlsSettings = tlsPacket->tlsSettings;
 			
-			NSNumber *value = [tlsSettings objectForKey:GCDAsyncSocketUseCFStreamForTLS];
+			NSNumber *value = [tlsSettings objectForKey:QBGCDAsyncSocketUseCFStreamForTLS];
 			if (value && [value boolValue] == YES)
 				useSecureTransport = NO;
 		}
@@ -6153,7 +6153,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 	}
 
 
-	BOOL shouldManuallyEvaluateTrust = [[tlsSettings objectForKey:GCDAsyncSocketManuallyEvaluateTrust] boolValue];
+	BOOL shouldManuallyEvaluateTrust = [[tlsSettings objectForKey:QBGCDAsyncSocketManuallyEvaluateTrust] boolValue];
 	if (shouldManuallyEvaluateTrust)
 	{
 		if (isServer)
@@ -6259,7 +6259,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 	
 	// 3. GCDAsyncSocketSSLPeerID
 	
-	value = [tlsSettings objectForKey:GCDAsyncSocketSSLPeerID];
+	value = [tlsSettings objectForKey:QBGCDAsyncSocketSSLPeerID];
 	if ([value isKindOfClass:[NSData class]])
 	{
 		NSData *peerIdData = (NSData *)value;
@@ -6283,7 +6283,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 	
 	// 4. GCDAsyncSocketSSLProtocolVersionMin
 	
-	value = [tlsSettings objectForKey:GCDAsyncSocketSSLProtocolVersionMin];
+	value = [tlsSettings objectForKey:QBGCDAsyncSocketSSLProtocolVersionMin];
 	if ([value isKindOfClass:[NSNumber class]])
 	{
 		SSLProtocol minProtocol = (SSLProtocol)[(NSNumber *)value intValue];
@@ -6307,7 +6307,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 	
 	// 5. GCDAsyncSocketSSLProtocolVersionMax
 	
-	value = [tlsSettings objectForKey:GCDAsyncSocketSSLProtocolVersionMax];
+	value = [tlsSettings objectForKey:QBGCDAsyncSocketSSLProtocolVersionMax];
 	if ([value isKindOfClass:[NSNumber class]])
 	{
 		SSLProtocol maxProtocol = (SSLProtocol)[(NSNumber *)value intValue];
@@ -6331,7 +6331,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 	
 	// 6. GCDAsyncSocketSSLSessionOptionFalseStart
 	
-	value = [tlsSettings objectForKey:GCDAsyncSocketSSLSessionOptionFalseStart];
+	value = [tlsSettings objectForKey:QBGCDAsyncSocketSSLSessionOptionFalseStart];
 	if ([value isKindOfClass:[NSNumber class]])
 	{
 		status = SSLSetSessionOption(sslContext, kSSLSessionOptionFalseStart, [value boolValue]);
@@ -6351,7 +6351,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 	
 	// 7. GCDAsyncSocketSSLSessionOptionSendOneByteRecord
 	
-	value = [tlsSettings objectForKey:GCDAsyncSocketSSLSessionOptionSendOneByteRecord];
+	value = [tlsSettings objectForKey:QBGCDAsyncSocketSSLSessionOptionSendOneByteRecord];
 	if ([value isKindOfClass:[NSNumber class]])
 	{
 		status = SSLSetSessionOption(sslContext, kSSLSessionOptionSendOneByteRecord, [value boolValue]);
@@ -6373,7 +6373,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 	
 	// 8. GCDAsyncSocketSSLCipherSuites
 	
-	value = [tlsSettings objectForKey:GCDAsyncSocketSSLCipherSuites];
+	value = [tlsSettings objectForKey:QBGCDAsyncSocketSSLCipherSuites];
 	if ([value isKindOfClass:[NSArray class]])
 	{
 		NSArray *cipherSuites = (NSArray *)value;
@@ -6880,7 +6880,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 
 + (void)cfstreamThread { @autoreleasepool
 {
-	[[NSThread currentThread] setName:GCDAsyncSocketThreadName];
+	[[NSThread currentThread] setName:QBGCDAsyncSocketThreadName];
 	
 	LogInfo(@"CFStreamThread: Started");
 	

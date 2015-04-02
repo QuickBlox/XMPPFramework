@@ -59,6 +59,11 @@
 	return [[XMPPPresence alloc] initWithType:type to:to];
 }
 
++ (XMPPPresence *)presenceWithStatus:(NSString *)status
+{
+    return [[XMPPPresence alloc] initWithStatus:status];
+}
+
 - (id)init
 {
 	self = [super initWithName:@"presence"];
@@ -89,6 +94,17 @@
 		self = [XMPPPresence presenceFromElement:self];
 	}	
 	return self;
+}
+
+- (id)initWithStatus:(NSString *)status
+{
+    if (self = [super initWithName:@"presence"]) {
+        if (status) {
+            XMPPElement* statusElement = [XMPPElement elementWithName:@"status" stringValue:status];
+            [self addChild:statusElement];
+        }
+    }
+    return self;
 }
 
 - (id)copyWithZone:(NSZone *)zone

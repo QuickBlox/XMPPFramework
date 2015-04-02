@@ -15,7 +15,7 @@ static NSString *const XMPPMUCAdminNamespace = @"http://jabber.org/protocol/muc#
 static NSString *const XMPPMUCOwnerNamespace = @"http://jabber.org/protocol/muc#owner";
 
 
-@interface XMPPRoom : XMPPModule
+@interface XMPPRoom : XMPPModule <NSCoding, NSCopying>
 {
 /*	Inherited from XMPPModule:
 	
@@ -58,6 +58,11 @@ static NSString *const XMPPMUCOwnerNamespace = @"http://jabber.org/protocol/muc#
  
 */
 
+- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName
+naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName;
+- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName
+naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName dispatchQueue:(dispatch_queue_t)queue;
+
 #pragma mark Properties
 
 @property (readonly) id <XMPPRoomStorage> xmppRoomStorage;
@@ -70,6 +75,18 @@ static NSString *const XMPPMUCOwnerNamespace = @"http://jabber.org/protocol/muc#
 @property (readonly) NSString *roomSubject;
 
 @property (readonly) BOOL isJoined;
+
+@property (readonly) NSString *naturalLanguageRoomName;
+
+@property (readwrite, copy) NSString *invitedUser;
+
+@property (nonatomic, assign) BOOL isMembersOnlyRoom;
+
+@property (nonatomic, assign) BOOL isPersistentRoom;
+
+@property (strong) NSDictionary *historyAttribute;
+
+@property (readonly) NSDictionary *occupants;
 
 #pragma mark Room Lifecycle
 
@@ -307,5 +324,20 @@ static NSString *const XMPPMUCOwnerNamespace = @"http://jabber.org/protocol/muc#
 
 - (void)xmppRoom:(XMPPRoom *)sender didEditPrivileges:(XMPPIQ *)iqResult;
 - (void)xmppRoom:(XMPPRoom *)sender didNotEditPrivileges:(XMPPIQ *)iqError;
+
+@end
+
+#define requestRoomUsersQueryIDPrefix @"561003"
+
+@interface XMPPRoom (Quickblox)
+
+- (void)requestUsers;
+- (void)requestUsersWithAffiliation:(NSString *)affiliation;
+
+- (void)joinRoomWithNickName:(NSString *)nickName;
+- (void)createOrJoinRoom;
+
+- (void)sendPresenceWithStatus:(NSString *)status;
+- (void)sendPresenceWithParameters:(NSDictionary *)parameters;
 
 @end

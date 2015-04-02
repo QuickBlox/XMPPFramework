@@ -20,33 +20,33 @@
 @class GCDAsyncWritePacket;
 @class GCDAsyncSocketPreBuffer;
 
-extern NSString *const GCDAsyncSocketException;
-extern NSString *const GCDAsyncSocketErrorDomain;
+extern NSString *const QBGCDAsyncSocketException;
+extern NSString *const QBGCDAsyncSocketErrorDomain;
 
-extern NSString *const GCDAsyncSocketQueueName;
-extern NSString *const GCDAsyncSocketThreadName;
+extern NSString *const QBGCDAsyncSocketQueueName;
+extern NSString *const QBGCDAsyncSocketThreadName;
 
-extern NSString *const GCDAsyncSocketManuallyEvaluateTrust;
+extern NSString *const QBGCDAsyncSocketManuallyEvaluateTrust;
 #if TARGET_OS_IPHONE
-extern NSString *const GCDAsyncSocketUseCFStreamForTLS;
+extern NSString *const QBGCDAsyncSocketUseCFStreamForTLS;
 #endif
-#define GCDAsyncSocketSSLPeerName     (NSString *)kCFStreamSSLPeerName
-#define GCDAsyncSocketSSLCertificates (NSString *)kCFStreamSSLCertificates
-#define GCDAsyncSocketSSLIsServer     (NSString *)kCFStreamSSLIsServer
-extern NSString *const GCDAsyncSocketSSLPeerID;
-extern NSString *const GCDAsyncSocketSSLProtocolVersionMin;
-extern NSString *const GCDAsyncSocketSSLProtocolVersionMax;
-extern NSString *const GCDAsyncSocketSSLSessionOptionFalseStart;
-extern NSString *const GCDAsyncSocketSSLSessionOptionSendOneByteRecord;
-extern NSString *const GCDAsyncSocketSSLCipherSuites;
+#define QBGCDAsyncSocketSSLPeerName     (NSString *)kCFStreamSSLPeerName
+#define QBGCDAsyncSocketSSLCertificates (NSString *)kCFStreamSSLCertificates
+#define QBGCDAsyncSocketSSLIsServer     (NSString *)kCFStreamSSLIsServer
+extern NSString *const QBGCDAsyncSocketSSLPeerID;
+extern NSString *const QBGCDAsyncSocketSSLProtocolVersionMin;
+extern NSString *const QBGCDAsyncSocketSSLProtocolVersionMax;
+extern NSString *const QBGCDAsyncSocketSSLSessionOptionFalseStart;
+extern NSString *const QBGCDAsyncSocketSSLSessionOptionSendOneByteRecord;
+extern NSString *const QBGCDAsyncSocketSSLCipherSuites;
 #if !TARGET_OS_IPHONE
 extern NSString *const GCDAsyncSocketSSLDiffieHellmanParameters;
 #endif
 
-#define GCDAsyncSocketLoggingContext 65535
+#define QBGCDAsyncSocketLoggingContext 65535
 
 
-enum GCDAsyncSocketError
+enum QBGCDAsyncSocketError
 {
 	GCDAsyncSocketNoError = 0,           // Never used
 	GCDAsyncSocketBadConfigError,        // Invalid configuration
@@ -58,7 +58,7 @@ enum GCDAsyncSocketError
 	GCDAsyncSocketClosedError,           // The remote peer closed the connection
 	GCDAsyncSocketOtherError,            // Description provided in userInfo
 };
-typedef enum GCDAsyncSocketError GCDAsyncSocketError;
+typedef enum QBGCDAsyncSocketError QBGCDAsyncSocketError;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -

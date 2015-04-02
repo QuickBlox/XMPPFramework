@@ -49,6 +49,7 @@
 - (BOOL)isChatMessageWithBody;
 - (BOOL)isErrorMessage;
 - (BOOL)isMessageWithBody;
+- (BOOL)isNormalMessage;
 
 - (NSError *)errorMessage;
 

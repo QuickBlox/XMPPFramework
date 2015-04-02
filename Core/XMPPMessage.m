@@ -167,6 +167,11 @@
 	return [[self elementForName:@"body"] stringValue];
 }
 
+- (BOOL)isNormalMessage
+{
+    return [[[self attributeForName:@"type"] stringValue] isEqualToString:@"normal"];
+}
+
 - (NSString *)bodyForLanguage:(NSString *)language
 {
     NSString *bodyForLanguage = nil;

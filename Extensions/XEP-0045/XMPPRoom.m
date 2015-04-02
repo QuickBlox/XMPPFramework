@@ -3,7 +3,10 @@
 #import "XMPPIDTracker.h"
 #import "XMPPMessage+XEP0045.h"
 #import "XMPPLogging.h"
+#import "ChatConsts.h"
+#import "DDLog.h"
 
+static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 
 // Log levels: off, error, warn, info, verbose
 // Log flags: trace
@@ -33,6 +36,29 @@ enum XMPPRoomState
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @implementation XMPPRoom
+
+- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName
+{
+    return [self initWithRoomJID:aRoomJID nickName:aNickName naturalLanguageRoomName:aNaturalLanguageRoomName dispatchQueue:NULL];
+}
+
+- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName dispatchQueue:(dispatch_queue_t)queue
+{
+    NSParameterAssert(aRoomJID != nil);
+    NSParameterAssert(aNickName != nil);
+    
+    if ((self = [super initWithDispatchQueue:queue]))
+    {
+        roomJID = [XMPPJID jidWithString:[aRoomJID copy]];
+        myNickname = [aNickName copy];
+        _naturalLanguageRoomName = [aNaturalLanguageRoomName copy];
+        
+        _occupants = [[NSMutableDictionary alloc] init];
+        
+        XMPPLogTrace2(@"%@: init -> roomName(%@) nickName(%@) aNaturalLanguageRoomName(%@)", [self class], roomJID, myNickname, aNaturalLanguageRoomName);
+    }
+    return self;
+}
 
 - (id)init
 {
@@ -1163,6 +1189,210 @@ enum XMPPRoomState
 		[item addAttributeWithName:@"jid" stringValue:[jid full]];
 	
 	return item;
+}
+
+#pragma mark - NSCoding and NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    XMPPRoom *copy = [[[self class] allocWithZone:zone] initWithRoomJID:roomJID.bare nickName:myNickname naturalLanguageRoomName:_naturalLanguageRoomName dispatchQueue:moduleQueue];
+    
+    copy->roomSubject     = [roomSubject copyWithZone:zone];
+    copy->_invitedUser     = [_invitedUser copyWithZone:zone];
+    copy->_occupants     = [_occupants copyWithZone:zone];
+    copy.isMembersOnlyRoom     = self.isMembersOnlyRoom;
+    copy.isPersistentRoom     = self.isPersistentRoom;
+    
+    return copy;
+}
+
+
+#pragma mark - NSCoding protocol
+
+/*
+ NSString *roomJID;
+ NSString *naturalLanguageRoomName;
+ NSString *nickName;
+ NSString *subject;
+ NSString *invitedUser;
+ BOOL _isJoined; // Don't need when encoding
+ NSMutableDictionary *occupants;
+ 
+ BOOL isMembersOnlyRoom;
+ BOOL isPersistentRoom;
+ */
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super init]){
+        roomJID = [aDecoder  decodeObjectForKey:@"roomJID"];
+        _naturalLanguageRoomName = [aDecoder  decodeObjectForKey:@"naturalLanguageRoomName"];
+        myNickname = [aDecoder decodeObjectForKey:@"nickName"];
+        roomSubject = [aDecoder decodeObjectForKey:@"subject"];
+        _invitedUser = [aDecoder decodeObjectForKey:@"invitedUser"];
+        _occupants = [aDecoder decodeObjectForKey:@"occupants"];
+        _isMembersOnlyRoom = [aDecoder decodeBoolForKey:@"isMembersOnlyRoom"];
+        _isPersistentRoom = [aDecoder decodeBoolForKey:@"isPersistentRoom"];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeObject:roomJID forKey:@"roomJID"];
+    [aCoder encodeObject:_naturalLanguageRoomName forKey:@"naturalLanguageRoomName"];
+    [aCoder encodeObject:myNickname forKey:@"nickName"];
+    [aCoder encodeObject:roomSubject forKey:@"subject"];
+    [aCoder encodeObject:_invitedUser forKey:@"invitedUser"];
+    [aCoder encodeObject:_occupants forKey:@"occupants"];
+    [aCoder encodeBool:_isMembersOnlyRoom forKey:@"isMembersOnlyRoom"];
+    [aCoder encodeBool:_isPersistentRoom forKey:@"isPersistentRoom"];
+}
+
+
+@end
+
+
+static NSString *const QBXMPPMUCNamespaceName      = @"http://jabber.org/protocol/muc";
+static NSString *const QBXMPPMUCUserNamespaceName  = @"http://jabber.org/protocol/muc#user";
+static NSString *const QBXMPPMUCOwnerNamespaceName = @"http://jabber.org/protocol/muc#owner";
+
+static NSDictionary *qbroomerrors;
+
+@implementation XMPPRoom (Quickblox)
+
+- (void)requestUsers
+{
+    [self requestUsersWithAffiliation:@"owner"];
+}
+
+- (void)requestUsersWithAffiliation:(NSString *)affiliation{
+    dispatch_block_t block = ^{
+        @autoreleasepool {
+            XMPPLogTrace();
+            
+            //<iq from='crone1@shakespeare.lit/desktop'
+            //    id='member3'
+            //    to='coven@chat.shakespeare.lit'
+            //    type='get'>
+            //   <query xmlns='http://jabber.org/protocol/muc#admin'>
+            //    <item affiliation='member'/>
+            //   </query>
+            //</iq>
+            
+            NSXMLElement *item = [[NSXMLElement alloc] initWithName:@"item"];
+            [item addAttributeWithName:@"affiliation" stringValue:affiliation];
+            NSXMLElement *query = [NSXMLElement elementWithName:@"query" xmlns:@"http://jabber.org/protocol/muc#admin"];
+            [query addChild:item];
+            
+            XMPPIQ *iq = [XMPPIQ iq];
+            [iq addAttributeWithName:@"id" stringValue:[NSString stringWithFormat:@"%@@%@", requestRoomUsersQueryIDPrefix, roomJID]];
+            [iq addAttributeWithName:@"to" stringValue:roomJID.bare];
+            [iq addAttributeWithName:@"type" stringValue:@"get"];
+            
+            [iq addChild:query];
+            
+            [xmppStream sendElement:iq];
+        }
+    };
+    
+    dispatch_async(moduleQueue, block);
+}
+
+- (void)joinRoomWithNickName:(NSString *)nickName
+{
+    DDLogInfo(@"QBChat/XEP-0045/ joinRoom");
+    
+    NSXMLElement *history = nil;
+    if(_historyAttribute != nil){
+        history = [NSXMLElement elementWithName:@"history"];
+        [history addAttributeWithName:[_historyAttribute allKeys][0]
+                          stringValue:[[_historyAttribute allValues][0] description]];
+    }
+
+    [self joinRoomUsingNickname:nickName
+                        history:history password:nil];
+}
+
+- (void)createOrJoinRoom
+{
+    dispatch_block_t block = ^{
+        @autoreleasepool {
+            XMPPLogTrace();
+            
+            // <presence to='darkcave@chat.shakespeare.lit/firstwitch'>
+            //   <x xmlns='http://jabber.org/protocol/muc'/>
+            // </presence>
+            
+            NSString *to = [NSString stringWithFormat:@"%@/%@", roomJID, myNickname];
+            
+            NSXMLElement *x = [NSXMLElement elementWithName:@"x" xmlns:QBXMPPMUCNamespaceName];
+            if(_historyAttribute != nil){
+                NSXMLElement *history = [NSXMLElement elementWithName:@"history"];
+                [history addAttributeWithName:[_historyAttribute allKeys][0]  stringValue:[[_historyAttribute allValues][0] description]];
+                [x addChild:history];
+            }
+            
+            XMPPPresence *presence = [XMPPPresence presence];
+            [presence addAttributeWithName:@"to" stringValue:to];
+            [presence addChild:x];
+            
+            [xmppStream sendElement:presence];
+        }
+    };
+    
+    dispatch_async(moduleQueue, block);
+}
+
+- (void)sendPresenceWithStatus:(NSString *)status
+{
+    dispatch_block_t block = ^{
+        @autoreleasepool {
+            XMPPLogTrace();
+            
+            // <presence to='darkcave@chat.shakespeare.lit/thirdwitch'><status>hello</status></presence>
+            
+            NSString *to = [NSString stringWithFormat:@"%@/%@", roomJID, myNickname];
+            
+            XMPPPresence *presence = [XMPPPresence presenceWithStatus:status];
+            [presence addAttributeWithName:@"to" stringValue:to];
+            
+            [xmppStream sendElement:presence];
+        }
+    };
+    
+    dispatch_async(moduleQueue, block);
+}
+
+- (void)sendPresenceWithParameters:(NSDictionary *)parameters
+{
+    dispatch_block_t block = ^{
+
+        @autoreleasepool {
+            XMPPLogTrace();
+            
+            // <presence to='darkcave@chat.shakespeare.lit/thirdwitch'><param1>hello</param1>..<paramn>hello</paramn></presence>
+            
+            NSString *to = [NSString stringWithFormat:@"%@/%@", roomJID, myNickname];
+            
+            XMPPPresence *presence = [XMPPPresence presence];
+            [presence addAttributeWithName:@"to" stringValue:to];
+            //
+            // add extra parameters
+            XMPPElement *presenseExtention = [XMPPElement elementWithName:qbChatPresenceExtension];
+            [presenseExtention setXmlns:qbChatPresenceExtensionXMLNS];
+            [parameters enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                XMPPElement *param = [XMPPElement elementWithName:key];
+                [param setStringValue:[obj description]];
+                [presenseExtention addChild:param];
+            }];
+            [presence addChild:presenseExtention];
+            
+            [xmppStream sendElement:presence];
+        }
+    };
+    
+    dispatch_async(moduleQueue, block);
 }
 
 @end

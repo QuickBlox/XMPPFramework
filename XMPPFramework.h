@@ -4,7 +4,7 @@
 //  As you pick and choose which parts of the framework you need for your application, add them to this header file.
 //  
 //  Various modules available within the framework optionally interact with each other.
-//  E.g. The XMPPPing module utilizes the XMPPCapabilities module to advertise support XEP-0199.
+//  E.g. The XMPPPing module will utilize the XMPPCapabilities module (if available) to advertise support XEP-0199.
 // 
 //  However, the modules can only interact if they're both added to your xcode project.
 //  E.g. If XMPPCapabilities isn't a part of your xcode project, then XMPPPing shouldn't attempt to reference it.
@@ -21,33 +21,21 @@
 //  
 //  THIS HEADER FILE SHOULD BE TAILORED TO MATCH YOUR APPLICATION.
 
-
 #import "XMPP.h"
 
-// List the modules you're using in your project here.
+// List the modules you're using here.
 
 #import "XMPPReconnect.h"
 
 #import "XMPPRoster.h"
-#import "XMPPRosterMemoryStorage.h"
-
-#import "XMPPMUC.h"
-#import "XMPPRoom.h"
-#import "XMPPRoomMemoryStorage.h"
-#import "XMPPRoomCoreDataStorage.h"
-#import "XMPPRoomHybridStorage.h"
+#import "XMPPRosterCoreDataStorage.h"
 
 #import "XMPPvCardTempModule.h"
-
-#import "TURNSocket.h"
+#import "XMPPvCardAvatarModule.h"
+#import "XMPPvCardCoreDataStorage.h"
 
 #import "XMPPCapabilities.h"
 #import "XMPPCapabilitiesCoreDataStorage.h"
 
-#import "XMPPvCardAvatarModule.h"
-
-#import "XMPPPing.h"
-#import "XMPPAutoPing.h"
-
-#import "XMPPTime.h"
-#import "XMPPAutoTime.h"
+#import "XMPPMUC.h"
+#import "XMPPRoomCoreDataStorage.h"

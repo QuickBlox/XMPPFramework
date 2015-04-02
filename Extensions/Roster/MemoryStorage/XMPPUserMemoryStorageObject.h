@@ -77,4 +77,6 @@
 - (NSComparisonResult)compareByAvailabilityName:(XMPPUserMemoryStorageObject *)another
                                         options:(NSStringCompareOptions)mask;
 
+@property (nonatomic, readonly) NSMutableDictionary* itemAttributes;
+
 @end

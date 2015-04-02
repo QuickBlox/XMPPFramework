@@ -1,0 +1,16 @@
+//
+//  XMPPLibrary.pch
+//  Quickblox
+//
+//  Created by Andrey Moskvin on 3/5/15.
+//  Copyright (c) 2015 QuickBlox. All rights reserved.
+//
+
+#ifndef Quickblox_XMPPLibrary_pch
+#define Quickblox_XMPPLibrary_pch
+
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import "NamespacedDependencies.h"
+
+#endif
