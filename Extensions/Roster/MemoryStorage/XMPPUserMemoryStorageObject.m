@@ -252,7 +252,7 @@
 	NSString *subscription = itemAttributes[@"subscription"];
 	NSString *ask = itemAttributes[@"ask"];
 	
-	if ([subscription isEqualToString:@"none"] || [subscription isEqualToString:@"from"])
+	if ([subscription isEqualToString:@"none"])
 	{
 		if([ask isEqualToString:@"subscribe"])
 		{
