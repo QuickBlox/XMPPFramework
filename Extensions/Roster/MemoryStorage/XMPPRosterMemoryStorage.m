@@ -734,6 +734,14 @@
 	}
 	
 	change = [user updateWithPresence:presence resourceClass:self.resourceClass andGetResource:&resource];
+    
+        NSString *presenceType = [presence type];
+    
+        if ([presenceType isEqualToString:@"subscribed"]) {
+            [[self multicastDelegate] xmppRoster:self didReceiveAcceptSubscriptionAnswerFromUser:user];
+        } else if ([presenceType isEqualToString:@"unsubscribed"]) {
+            [[self multicastDelegate] xmppRoster:self didReceiveRejectSubscriptionAnswerFromUser:user];
+        }
 	
 	XMPPLogVerbose(@"roster(%lu): %@", (unsigned long)[roster count], roster);
 	

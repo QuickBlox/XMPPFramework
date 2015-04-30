@@ -111,6 +111,12 @@
 - (void)xmppRoster:(XMPPRosterMemoryStorage *)sender didRemoveUser:(XMPPUserMemoryStorageObject *)user;
 
 /**
+ * Notifications when users send confirm/reject to you
+ */
+- (void)xmppRoster:(XMPPRosterMemoryStorage *)sender didReceiveAcceptSubscriptionAnswerFromUser:(XMPPUserMemoryStorageObject *)user;
+- (void)xmppRoster:(XMPPRosterMemoryStorage *)sender didReceiveRejectSubscriptionAnswerFromUser:(XMPPUserMemoryStorageObject *)user;
+
+/**
  * Notifications when resources go online / offline.
 **/
 - (void)xmppRoster:(XMPPRosterMemoryStorage *)sender

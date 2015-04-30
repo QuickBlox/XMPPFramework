@@ -38,7 +38,6 @@
 	
 	// State machine
 	
-	BOOL isStarted;    // either <enabled/> or <resumed/> received from server
 	BOOL enableQueued; // the <enable/> element is queued in xmppStream
 	BOOL enableSent;   // the <enable/> element has been sent through xmppStream
 	
@@ -96,6 +95,7 @@
 }
 
 @synthesize storage = storage;
+@synthesize isStarted;
 
 - (id)init
 {

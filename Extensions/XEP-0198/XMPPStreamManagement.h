@@ -25,6 +25,9 @@
 
 @property (nonatomic, strong, readonly) id <XMPPStreamManagementStorage> storage;
 
+// either <enabled/> or <resumed/> received from server
+@property (nonatomic, readonly) BOOL isStarted;
+
 #pragma mark Enable
 
 /**
