@@ -300,6 +300,7 @@ naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName dispatchQueue:(disp
 
 - (void)xmppRoomDidJoin:(XMPPRoom *)sender;
 - (void)xmppRoomDidLeave:(XMPPRoom *)sender;
+- (void)xmppRoomDidNotEnter:(XMPPRoom *)sender withError:(NSError *)error;
 
 - (void)xmppRoomDidDestroy:(XMPPRoom *)sender;
 

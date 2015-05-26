@@ -1075,6 +1075,23 @@ enum XMPPRoomState
 			[multicastDelegate xmppRoom:self occupantDidLeave:from withPresence:presence];
 		}
 	}
+    
+    // Error
+    if([presence.type isEqualToString:@"error"]){
+        
+        NSXMLElement *error = [presence elementForName:@"error"];
+        
+        NSInteger codeOfError = 0;
+        if([error attributeIntValueForName:@"code"]){
+            codeOfError = [error attributeIntValueForName:@"code"];
+        }
+        
+        NSXMLElement *errorType = [[error children] objectAtIndex:0];
+        
+        [multicastDelegate xmppRoomDidNotEnter:self
+                                     withError:[NSError errorWithDomain:errorType.name code:codeOfError userInfo:nil]];
+        return;
+    }
 }
 
 - (void)xmppStream:(XMPPStream *)sender didReceiveMessage:(XMPPMessage *)message
