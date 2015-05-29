@@ -298,6 +298,7 @@ enum XMPPRoomState
 		
 		if (![self preJoinWithNickname:desiredNickname])
 		{
+            [multicastDelegate xmppRoomDidNotEnter:self withError:[NSError errorWithDomain:@"com.quickblox.xmpp" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Cannot create/join room when already creating/joining/joined."}]];
 			return;
 		}
 		
