@@ -33,4 +33,19 @@
     return NO;
 }
 
+- (BOOL)isShouldBeIgnored
+{
+    NSString *nick = [[self from] resource];
+    
+    if ([self isGroupChatMessageWithBody] &&
+        nick == nil &&
+        ([[self body] isEqualToString:@"Welcome! You created new Multi User Chat Room. Room is locked now. Configure it please!"]
+        || [[self body] isEqualToString:@"Room is locked. Please configure."]))
+    {
+        return YES;
+    }
+
+    return NO;
+}
+
 @end

@@ -1036,7 +1036,9 @@ enum XMPPRoomState
 	{
 		state |= kXMPPRoomStateCreated;
 		
-		[multicastDelegate xmppRoomDidCreate:self];
+        [multicastDelegate xmppRoomDidNotEnter:self
+                                     withError:[NSError errorWithDomain:@"com.quickblox.chat" code:404 userInfo:@{NSLocalizedDescriptionKey : @"The operation couldn’t be completed. (com.quickblox.chat error 404.)"}]];
+        return;
 	}
 	
 	if (isMyPresence)
