@@ -298,7 +298,7 @@ naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName dispatchQueue:(disp
 - (void)xmppRoom:(XMPPRoom *)sender didConfigure:(XMPPIQ *)iqResult;
 - (void)xmppRoom:(XMPPRoom *)sender didNotConfigure:(XMPPIQ *)iqResult;
 
-- (void)xmppRoomDidJoin:(XMPPRoom *)sender;
+- (void)xmppRoomDidJoin:(XMPPRoom *)sender withPresence:(XMPPPresence *)presence;
 - (void)xmppRoomDidLeave:(XMPPRoom *)sender;
 - (void)xmppRoomDidNotEnter:(XMPPRoom *)sender withError:(NSError *)error;
 

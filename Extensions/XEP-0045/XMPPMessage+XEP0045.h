@@ -7,6 +7,5 @@
 - (BOOL)isGroupChatMessage;
 - (BOOL)isGroupChatMessageWithBody;
 - (BOOL)isGroupChatMessageWithSubject;
-- (BOOL)isShouldBeIgnored;
 
 @end
