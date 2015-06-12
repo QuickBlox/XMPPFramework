@@ -1036,9 +1036,7 @@ enum XMPPRoomState
 	{
 		state |= kXMPPRoomStateCreated;
 		
-        [multicastDelegate xmppRoomDidNotEnter:self
-                                     withError:[NSError errorWithDomain:@"com.quickblox.chat" code:404 userInfo:@{NSLocalizedDescriptionKey : @"The operation couldn’t be completed. (com.quickblox.chat error 404.)"}]];
-        return;
+        [multicastDelegate xmppRoomDidCreate:self];
 	}
 	
 	if (isMyPresence)
@@ -1055,7 +1053,7 @@ enum XMPPRoomState
 				
 				if ([xmppRoomStorage respondsToSelector:@selector(handleDidJoinRoom:withNickname:)])
 					[xmppRoomStorage handleDidJoinRoom:self withNickname:myNickname];
-				[multicastDelegate xmppRoomDidJoin:self];
+				[multicastDelegate xmppRoomDidJoin:self withPresence:presence];
 			}
 		}
 		else if (isUnavailable && !isNicknameChange)
