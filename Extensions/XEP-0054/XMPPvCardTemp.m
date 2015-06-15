@@ -22,7 +22,7 @@
 #if DEBUG
   static const int xmppLogLevel = XMPP_LOG_LEVEL_ERROR;
 #else
-  static const int xmppLogLevel = XMPP_LOG_LEVEL_ERROR;
+  __unused static const int xmppLogLevel = XMPP_LOG_LEVEL_ERROR;
 #endif
 
 NSString *const kXMPPNSvCardTemp = @"vcard-temp";
