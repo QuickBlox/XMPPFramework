@@ -4484,6 +4484,18 @@ enum XMPPStreamConfig
 - (void)xmppParser:(XMPPParser *)sender didReadElement:(NSXMLElement *)element
 {
 	// This method is invoked on the xmppQueue.
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            
+            NSXMLElement *errorElement = [[NSXMLElement alloc] initWithXMLString:@"<stream:error><see-other-host xmlns='urn:ietf:params:xml:ns:xmpp-streams'> 54.34.56.123:9222 </see-other-host> </stream:error>" error:nil];
+            
+            [self xmppParser:parser didReadElement:errorElement];
+        });
+        
+    });
 	
 	if (sender != parser) return;
 	
