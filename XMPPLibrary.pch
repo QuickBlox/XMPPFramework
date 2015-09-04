@@ -9,8 +9,12 @@
 #ifndef Quickblox_XMPPLibrary_pch
 #define Quickblox_XMPPLibrary_pch
 
+#if defined(__OBJC__)
+
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import "NamespacedDependencies.h"
+
+#endif
 
 #endif
