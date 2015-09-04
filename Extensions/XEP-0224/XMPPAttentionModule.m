@@ -51,9 +51,10 @@
 	else
 	{
 		__block BOOL result;
-		
+		__weak __typeof(self)weakSelf = self;
 		dispatch_sync(moduleQueue, ^{
-			result = respondsToQueries;
+			__typeof(self)strongSelf = weakSelf;
+			result = strongSelf->respondsToQueries;
 		});
 		return result;
 	}
@@ -61,11 +62,12 @@
 
 - (void)setRespondsToQueries:(BOOL)flag
 {
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		
-		if (respondsToQueries != flag)
+		__typeof(self)strongSelf = weakSelf;
+		if (strongSelf->respondsToQueries != flag)
 		{
-			respondsToQueries = flag;
+			strongSelf->respondsToQueries = flag;
 			
 #ifdef _XMPP_CAPABILITIES_H
 			@autoreleasepool {

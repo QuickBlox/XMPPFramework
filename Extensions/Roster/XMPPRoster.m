@@ -106,12 +106,13 @@ enum XMPPRosterFlags
 		#ifdef _XMPP_MUC_H
 		{
 			// Automatically tie into the MUC system so we can ignore non-roster presence stanzas.
-			
+			__weak __typeof(self)weakSelf = self;
 			[xmppStream enumerateModulesWithBlock:^(XMPPModule *module, NSUInteger idx, BOOL *stop) {
 				
 				if ([module isKindOfClass:[XMPPMUC class]])
 				{
-					[mucModules add:(__bridge void *)module];
+					__typeof(self)strongSelf = weakSelf;
+					[strongSelf->mucModules add:(__bridge void *)module];
 				}
 			}];
 		}
@@ -126,11 +127,11 @@ enum XMPPRosterFlags
 - (void)deactivate
 {
 	XMPPLogTrace();
-    
+    __weak __typeof(self)weakSelf = self;
     dispatch_block_t block = ^{ @autoreleasepool {
-        
-		[xmppIDTracker removeAllIDs];
-		xmppIDTracker = nil;
+		__typeof(self)strongSelf = weakSelf;
+		[strongSelf->xmppIDTracker removeAllIDs];
+		strongSelf->xmppIDTracker = nil;
         
 	}};
     
@@ -175,9 +176,10 @@ enum XMPPRosterFlags
 - (BOOL)autoFetchRoster
 {
 	__block BOOL result = NO;
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		result = (config & kAutoFetchRoster) ? YES : NO;
+		__typeof(self)strongSelf = weakSelf;
+		result = (strongSelf->config & kAutoFetchRoster) ? YES : NO;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -239,9 +241,10 @@ enum XMPPRosterFlags
 - (BOOL)autoAcceptKnownPresenceSubscriptionRequests
 {
 	__block BOOL result = NO;
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		result = (config & kAutoAcceptKnownPresenceSubscriptionRequests) ? YES : NO;
+		__typeof(self)strongSelf = weakSelf;
+		result = (strongSelf->config & kAutoAcceptKnownPresenceSubscriptionRequests) ? YES : NO;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -254,12 +257,13 @@ enum XMPPRosterFlags
 
 - (void)setAutoAcceptKnownPresenceSubscriptionRequests:(BOOL)flag
 {
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		
+		__typeof(self)strongSelf = weakSelf;
 		if (flag)
-			config |= kAutoAcceptKnownPresenceSubscriptionRequests;
+			strongSelf->config |= kAutoAcceptKnownPresenceSubscriptionRequests;
 		else
-			config &= ~kAutoAcceptKnownPresenceSubscriptionRequests;
+			strongSelf->config &= ~kAutoAcceptKnownPresenceSubscriptionRequests;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))

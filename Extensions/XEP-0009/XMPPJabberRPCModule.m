@@ -105,9 +105,10 @@ NSString *const XMPPJabberRPCErrorDomain = @"XMPPJabberRPCErrorDomain";
 - (NSTimeInterval)defaultTimeout
 {
 	__block NSTimeInterval result;
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		result = defaultTimeout;
+		__typeof(self)strongSelf = weakSelf;
+		result = strongSelf->defaultTimeout;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -120,9 +121,11 @@ NSString *const XMPPJabberRPCErrorDomain = @"XMPPJabberRPCErrorDomain";
 
 - (void)setDefaultTimeout:(NSTimeInterval)newDefaultTimeout
 {
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
 		XMPPLogTrace();
-		defaultTimeout = newDefaultTimeout;
+		__typeof(self)strongSelf = weakSelf;
+		strongSelf->defaultTimeout = newDefaultTimeout;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))

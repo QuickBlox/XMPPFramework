@@ -159,9 +159,10 @@
 	XMPPLogTrace();
 	
 	__block BOOL result = NO;
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		result = autoResume;
+		__typeof(self)strongSelf = weakSelf;
+		result = strongSelf->autoResume;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -175,9 +176,10 @@
 - (void)setAutoResume:(BOOL)newAutoResume
 {
 	XMPPLogTrace();
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		autoResume = newAutoResume;
+		__typeof(self)strongSelf = weakSelf;
+		strongSelf->autoResume = newAutoResume;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -189,16 +191,16 @@
 - (void)automaticallyRequestAcksAfterStanzaCount:(NSUInteger)stanzaCount orTimeout:(NSTimeInterval)timeout
 {
 	XMPPLogTrace();
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{ @autoreleasepool{
+		__typeof(self)strongSelf = weakSelf;
+		strongSelf->autoRequest_stanzaCount = stanzaCount;
+		strongSelf->autoRequest_timeout = MAX(0.0, timeout);
 		
-		autoRequest_stanzaCount = stanzaCount;
-		autoRequest_timeout = MAX(0.0, timeout);
-		
-		if (autoRequestTimer) {
-			[autoRequestTimer updateTimeout:autoRequest_timeout fromOriginalStartTime:YES];
+		if (strongSelf->autoRequestTimer) {
+			[strongSelf->autoRequestTimer updateTimeout:strongSelf->autoRequest_timeout fromOriginalStartTime:YES];
 		}
-		if (isStarted) {
+		if (strongSelf->isStarted) {
 			[self maybeRequestAck];
 		}
 	}};
@@ -216,10 +218,11 @@
 	__block NSUInteger stanzaCount = 0;
 	__block NSTimeInterval timeout = 0.0;
 	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		
-		stanzaCount = autoRequest_stanzaCount;
-		timeout = autoRequest_timeout;
+		__typeof(self)strongSelf = weakSelf;
+		stanzaCount = strongSelf->autoRequest_stanzaCount;
+		timeout = strongSelf->autoRequest_timeout;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -234,17 +237,17 @@
 - (void)automaticallySendAcksAfterStanzaCount:(NSUInteger)stanzaCount orTimeout:(NSTimeInterval)timeout
 {
 	XMPPLogTrace();
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{ @autoreleasepool{
+		__typeof(self)strongSelf = weakSelf;
+		strongSelf->autoAck_stanzaCount = stanzaCount;
+		strongSelf->autoAck_timeout = MAX(0.0, timeout);
 		
-		autoAck_stanzaCount = stanzaCount;
-		autoAck_timeout = MAX(0.0, timeout);
-		
-		if (autoAckTimer) {
-			[autoAckTimer updateTimeout:autoAck_timeout fromOriginalStartTime:YES];
+		if (strongSelf->autoAckTimer) {
+			[strongSelf->autoAckTimer updateTimeout:strongSelf->autoAck_timeout fromOriginalStartTime:YES];
 		}
-		if (isStarted) {
-			[self maybeSendAck];
+		if (strongSelf->isStarted) {
+			[strongSelf maybeSendAck];
 		}
 	}};
 	
@@ -261,10 +264,12 @@
 	__block NSUInteger stanzaCount = 0;
 	__block NSTimeInterval timeout = 0.0;
 	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
+		__typeof(self)strongSelf = weakSelf;
 		
-		stanzaCount = autoAck_stanzaCount;
-		timeout = autoAck_timeout;
+		stanzaCount = strongSelf->autoAck_stanzaCount;
+		timeout = strongSelf->autoAck_timeout;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -281,10 +286,11 @@
 	XMPPLogTrace();
 	
 	__block NSUInteger delay = 0.0;
-	
+
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		
-		delay = ackResponseDelay;
+		__typeof(self)strongSelf = weakSelf;
+		delay = strongSelf->ackResponseDelay;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -298,10 +304,10 @@
 - (void)setAckResponseDelay:(NSTimeInterval)delay
 {
 	XMPPLogTrace();
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		
-		ackResponseDelay = delay;
+		__typeof(self)strongSelf = weakSelf;
+		strongSelf->ackResponseDelay = delay;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -339,14 +345,15 @@
 **/
 - (void)enableStreamManagementWithResumption:(BOOL)supportsResumption maxTimeout:(NSTimeInterval)maxTimeout
 {
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{ @autoreleasepool{
-		
-		if (isStarted)
+		__typeof(self)strongSelf = weakSelf;
+		if (strongSelf->isStarted)
 		{
 			XMPPLogWarn(@"Stream management is already enabled/resumed.");
 			return;
 		}
-		if (enableQueued || enableSent)
+		if (strongSelf->enableQueued || strongSelf->enableSent)
 		{
 			XMPPLogWarn(@"Stream management is already started (pending response from server).");
 			return;
@@ -354,16 +361,16 @@
 		
 		// State transition cleanup
 		
-		[unackedByServer removeAllObjects];
-		unackedByServer_lastRequestOffset = 0;
+		[strongSelf->unackedByServer removeAllObjects];
+		strongSelf->unackedByServer_lastRequestOffset = 0;
 		
-		[unackedByClient removeAllObjects];
-		unackedByClient_lastAckOffset = 0;
+		[strongSelf->unackedByClient removeAllObjects];
+		strongSelf->unackedByClient_lastAckOffset = 0;
 		
-		unprocessedReceivedAcks = nil;
+		strongSelf->unprocessedReceivedAcks = nil;
 		
-		pendingHandledStanzaIds = nil;
-		outstandingStanzaIds = 0;
+		strongSelf->pendingHandledStanzaIds = nil;
+		strongSelf->outstandingStanzaIds = 0;
 		
 		// Send enable stanza:
 		//
@@ -378,10 +385,10 @@
 			[enable addAttributeWithName:@"max" stringValue:[NSString stringWithFormat:@"%.0f", maxTimeout]];
 		}
 		
-		[xmppStream sendElement:enable];
+		[strongSelf->xmppStream sendElement:enable];
 		
-		enableQueued = YES;
-		requestedMax = (maxTimeout > 0.0) ? (uint32_t)maxTimeout : (uint32_t)0;
+		strongSelf->enableQueued = YES;
+		strongSelf->requestedMax = (maxTimeout > 0.0) ? (uint32_t)maxTimeout : (uint32_t)0;
 	}};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -440,9 +447,11 @@
 	
 	__block BOOL result = NO;
 	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{ @autoreleasepool{
+		__typeof(self)strongSelf = weakSelf;
 		
-		if (isStarted || enableQueued || enableSent) {
+		if (strongSelf->isStarted || strongSelf->enableQueued || strongSelf->enableSent) {
 			return_from_block;
 		}
 		
@@ -450,12 +459,12 @@
 		uint32_t timeout = 0;
 		NSDate *lastDisconnect = nil;
 		
-		[storage getResumptionId:&resumptionId
+		[strongSelf->storage getResumptionId:&resumptionId
 		                 timeout:&timeout
 		          lastDisconnect:&lastDisconnect
-		               forStream:xmppStream];
+		               forStream:strongSelf->xmppStream];
 		
-		result = [self canResumeStreamWithResumptionId:resumptionId timeout:timeout lastDisconnect:lastDisconnect];
+		result = [strongSelf canResumeStreamWithResumptionId:resumptionId timeout:timeout lastDisconnect:lastDisconnect];
 	}};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -473,20 +482,21 @@
 {
 	XMPPLogTrace();
 	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{ @autoreleasepool {
-		
+		__typeof(self)strongSelf = weakSelf;
 		// State transition cleanup
 		
-		[unackedByServer removeAllObjects];
-		unackedByServer_lastRequestOffset = 0;
+		[strongSelf->unackedByServer removeAllObjects];
+		strongSelf->unackedByServer_lastRequestOffset = 0;
 		
-		[unackedByClient removeAllObjects];
-		unackedByClient_lastAckOffset = 0;
+		[strongSelf->unackedByClient removeAllObjects];
+		strongSelf->unackedByClient_lastAckOffset = 0;
 		
-		unprocessedReceivedAcks = nil;
+		strongSelf->unprocessedReceivedAcks = nil;
 		
-		pendingHandledStanzaIds = nil;
-		outstandingStanzaIds = 0;
+		strongSelf->pendingHandledStanzaIds = nil;
+		strongSelf->outstandingStanzaIds = 0;
 		
 		// Restore our state from the last stream
 		
@@ -494,20 +504,20 @@
 		uint32_t newLastHandledByServer = 0;
 		NSArray *pendingOutgoingStanzas = nil;
 		
-		[storage getLastHandledByClient:&newLastHandledByClient
+		[strongSelf->storage getLastHandledByClient:&newLastHandledByClient
 		            lastHandledByServer:&newLastHandledByServer
 		         pendingOutgoingStanzas:&pendingOutgoingStanzas
-		                      forStream:xmppStream];
+		                      forStream:strongSelf->xmppStream];
 		
-		lastHandledByClient = newLastHandledByClient;
-		lastHandledByServer = newLastHandledByServer;
+		strongSelf->lastHandledByClient = newLastHandledByClient;
+		strongSelf->lastHandledByServer = newLastHandledByServer;
 		
 		if ([pendingOutgoingStanzas count] > 0) {
-			prev_unackedByServer = [[NSMutableArray alloc] initWithArray:pendingOutgoingStanzas copyItems:YES];
+			strongSelf->prev_unackedByServer = [[NSMutableArray alloc] initWithArray:pendingOutgoingStanzas copyItems:YES];
 		}
 		
 		XMPPLogVerbose(@"%@: Attempting to resume: lastHandledByClient(%u) lastHandledByServer(%u)",
-		               THIS_FILE, lastHandledByClient, lastHandledByServer);
+		               THIS_FILE, strongSelf->lastHandledByClient, strongSelf->lastHandledByServer);
 		
 		// Send the resume stanza:
 		//
@@ -515,11 +525,11 @@
 		
 		NSXMLElement *resume = [NSXMLElement elementWithName:@"resume" xmlns:XMLNS_STREAM_MANAGEMENT];
 		[resume addAttributeWithName:@"previd" stringValue:resumptionId];
-		[resume addAttributeWithName:@"h" stringValue:[NSString stringWithFormat:@"%u", lastHandledByClient]];
+		[resume addAttributeWithName:@"h" stringValue:[NSString stringWithFormat:@"%u", strongSelf->lastHandledByClient]];
 		
-		[xmppStream sendBindElement:resume];
+		[strongSelf->xmppStream sendBindElement:resume];
 		
-		didAttemptResume = YES;
+		strongSelf->didAttemptResume = YES;
 	}};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -534,60 +544,61 @@
 - (void)processResumed:(NSXMLElement *)resumed
 {
 	XMPPLogTrace();
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{ @autoreleasepool {
+		__typeof(self)strongSelf = weakSelf;
 		
-		uint32_t h = [resumed attributeUInt32ValueForName:@"h" withDefaultValue:lastHandledByServer];
+		uint32_t h = [resumed attributeUInt32ValueForName:@"h" withDefaultValue:strongSelf->lastHandledByServer];
 		
 		uint32_t diff;
-		if (h >= lastHandledByServer)
-			diff = h - lastHandledByServer;
+		if (h >= strongSelf->lastHandledByServer)
+			diff = h - strongSelf->lastHandledByServer;
 		else
-			diff = (UINT32_MAX - lastHandledByServer) + h;
+			diff = (UINT32_MAX - strongSelf->lastHandledByServer) + h;
 		
 		// IMPORTATNT:
 		// This code path uses prev_unackedByServer (NOT unackedByServer).
 		// This is because the ack has to do with stanzas sent from the previous connection.
 		
-		if (diff > [prev_unackedByServer count])
+		if (diff > [strongSelf->prev_unackedByServer count])
 		{
 			XMPPLogWarn(@"Unexpected h value from resume: lastH=%lu, newH=%lu, numPendingStanzas=%lu",
-			            (unsigned long)lastHandledByServer,
+			            (unsigned long)strongSelf->lastHandledByServer,
 			            (unsigned long)h,
-			            (unsigned long)[prev_unackedByServer count]);
+			            (unsigned long)[strongSelf->prev_unackedByServer count]);
 			
-			diff = (uint32_t)[prev_unackedByServer count];
+			diff = (uint32_t)[strongSelf->prev_unackedByServer count];
 		}
 		
 		NSMutableArray *stanzaIds = [NSMutableArray arrayWithCapacity:(NSUInteger)diff];
 		
 		for (uint32_t i = 0; i < diff; i++)
 		{
-			XMPPStreamManagementOutgoingStanza *outgoingStanza = prev_unackedByServer[(NSUInteger) i];
+			XMPPStreamManagementOutgoingStanza *outgoingStanza = strongSelf->prev_unackedByServer[(NSUInteger) i];
 			
 			if (outgoingStanza.stanzaId) {
 				[stanzaIds addObject:outgoingStanza.stanzaId];
 			}
 		}
 		
-		lastHandledByServer = h;
+		strongSelf->lastHandledByServer = h;
 		
-		XMPPLogVerbose(@"%@: processResumed: lastHandledByServer(%u)", THIS_FILE, lastHandledByServer);
+		XMPPLogVerbose(@"%@: processResumed: lastHandledByServer(%u)", THIS_FILE, strongSelf->lastHandledByServer);
 		
-		isStarted = YES;
-		didResume = YES;
+		strongSelf->isStarted = YES;
+		strongSelf->didResume = YES;
 		
-		prev_unackedByServer = nil;
+		strongSelf->prev_unackedByServer = nil;
 		
-		resume_response = resumed;
-		resume_stanzaIds = [stanzaIds copy];
+		strongSelf->resume_response = resumed;
+		strongSelf->resume_stanzaIds = [stanzaIds copy];
 		
 		// Update storage
 		
-		[storage setLastDisconnect:[NSDate date]
-		       lastHandledByServer:lastHandledByServer
+		[strongSelf->storage setLastDisconnect:[NSDate date]
+		       lastHandledByServer:strongSelf->lastHandledByServer
 		    pendingOutgoingStanzas:nil
-		                 forStream:xmppStream];
+		                 forStream:strongSelf->xmppStream];
 	}};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -650,12 +661,12 @@
 	__block BOOL result = NO;
 	__block NSArray *stanzaIds = nil;
 	__block NSXMLElement *response = nil;
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		
-		result = didResume;
-		stanzaIds = resume_stanzaIds;
-		response = resume_response;
+		__typeof(self)strongSelf = weakSelf;
+		result = strongSelf->didResume;
+		stanzaIds = strongSelf->resume_stanzaIds;
+		response = strongSelf->resume_response;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -742,13 +753,13 @@
 		if (![elementName isEqualToString:@"failed"]) {
 			XMPPLogError(@"%@: Received unrecognized response from server: %@", THIS_METHOD, element);
 		}
-		
+		__weak __typeof(self)weakSelf = self;
 		dispatch_async(moduleQueue, ^{ @autoreleasepool {
+			__typeof(self)strongSelf = weakSelf;
+			strongSelf->didResume = NO;
+			strongSelf->resume_response = element;
 			
-			didResume = NO;
-			resume_response = element;
-			
-			prev_unackedByServer = nil;
+			strongSelf->prev_unackedByServer = nil;
 		}});
 		
 		return XMPP_BIND_FAIL_FALLBACK;
@@ -911,8 +922,9 @@
 		GCDMulticastDelegateEnumerator *enumerator = [multicastDelegate delegateEnumerator];
 		
 		dispatch_queue_t concurrentQ = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+		__weak __typeof(self)weakSelf = self;
 		dispatch_async(concurrentQ, ^{ @autoreleasepool {
-			
+			__typeof(self)strongSelf = weakSelf;
 			id stanzaId = nil;
 			
 			id delegate = nil;
@@ -920,7 +932,7 @@
 			
 			while ([enumerator getNextDelegate:&delegate delegateQueue:&dq forSelector:selector])
 			{
-				stanzaId = [delegate xmppStreamManagement:self stanzaIdForSentElement:element];
+				stanzaId = [delegate xmppStreamManagement:strongSelf stanzaIdForSentElement:element];
 				if (stanzaId)
 				{
 					break;
@@ -932,7 +944,7 @@
 				stanzaId = [element elementID];
 			}
 			
-			dispatch_async(moduleQueue, ^{ @autoreleasepool{
+			dispatch_async(strongSelf->moduleQueue, ^{ @autoreleasepool{
 				
 				// Set the stanzaId.
 				stanza.stanzaId = stanzaId;
@@ -945,13 +957,13 @@
 				
 				BOOL dequeuedPendingAck = NO;
 				
-				while ([unprocessedReceivedAcks count] > 0)
+				while ([strongSelf->unprocessedReceivedAcks count] > 0)
 				{
-					NSXMLElement *ack = unprocessedReceivedAcks[0];
+					NSXMLElement *ack = strongSelf->unprocessedReceivedAcks[0];
 					
 					if ([self processReceivedAck:ack])
 					{
-						[unprocessedReceivedAcks removeObjectAtIndex:0];
+						[strongSelf->unprocessedReceivedAcks removeObjectAtIndex:0];
 						dequeuedPendingAck = YES;
 					}
 					else
@@ -962,7 +974,7 @@
 				
 				if (!dequeuedPendingAck)
 				{
-					[self updateStoredPendingOutgoingStanzas];
+					[strongSelf-> updateStoredPendingOutgoingStanzas];
 				}
 			}});
 		}});
@@ -1127,7 +1139,7 @@
 	
 	dispatch_block_t block = ^{ @autoreleasepool{
 		
-		if (isStarted)
+		if (strongSelf->isStarted)
 		{
 			[self _sendAck];
 		}
@@ -1340,7 +1352,7 @@
 		
 		BOOL found = NO;
 		
-		for (XMPPStreamManagementIncomingStanza *stanza in unackedByClient)
+		for (XMPPStreamManagementIncomingStanza *stanza in strongSelf->unackedByClient)
 		{
 			if (stanza.isHandled)
 			{

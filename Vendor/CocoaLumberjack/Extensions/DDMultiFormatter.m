@@ -63,10 +63,13 @@
 
 - (NSString *)formatLogMessage:(DDLogMessage *)logMessage {
     __block NSString *line = logMessage->logMsg;
-    
+	
+	__weak __typeof(self)weakSelf = self;
+	
     dispatch_sync(_queue, ^{
-        for (id<DDLogFormatter> formatter in _formatters) {
-            DDLogMessage *message = [self logMessageForLine:line originalMessage:logMessage];
+		__typeof(self)strongSelf = weakSelf;
+        for (id<DDLogFormatter> formatter in strongSelf->_formatters) {
+            DDLogMessage *message = [strongSelf logMessageForLine:line originalMessage:logMessage];
             line = [formatter formatLogMessage:message];
             
             if (!line) {
@@ -88,37 +91,45 @@
 
 - (NSArray *)formatters {
     __block NSArray *formatters;
-    
+    __weak __typeof(self)weakSelf = self;
     dispatch_sync(_queue, ^{
-        formatters = [_formatters copy];
+		__typeof(self)strongSelf = weakSelf;
+        formatters = [strongSelf->_formatters copy];
     });
     
     return formatters;
 }
 
 - (void)addFormatter:(id<DDLogFormatter>)formatter {
+	__weak __typeof(self)weakSelf = self;
     dispatch_barrier_async(_queue, ^{
-        [_formatters addObject:formatter];
+		__typeof(self)strongSelf = weakSelf;
+        [strongSelf->_formatters addObject:formatter];
     });
 }
 
 - (void)removeFormatter:(id<DDLogFormatter>)formatter {
+	__weak __typeof(self)weakSelf = self;
     dispatch_barrier_async(_queue, ^{
-        [_formatters removeObject:formatter];
+		__typeof(self)strongSelf = weakSelf;
+        [strongSelf->_formatters removeObject:formatter];
     });
 }
 
 - (void)removeAllFormatters {
+	__weak __typeof(self)weakSelf = self;
     dispatch_barrier_async(_queue, ^{
-        [_formatters removeAllObjects];
+		__typeof(self)strongSelf = weakSelf;
+        [strongSelf->_formatters removeAllObjects];
     });
 }
 
 - (BOOL)isFormattingWithFormatter:(id<DDLogFormatter>)formatter {
     __block BOOL hasFormatter;
-    
+    __weak __typeof(self)weakSelf = self;
     dispatch_sync(_queue, ^{
-        hasFormatter = [_formatters containsObject:formatter];
+		__typeof(self)strongSelf = weakSelf;
+        hasFormatter = [strongSelf->_formatters containsObject:formatter];
     });
     
     return hasFormatter;

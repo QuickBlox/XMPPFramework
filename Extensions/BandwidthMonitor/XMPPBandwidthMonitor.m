@@ -28,9 +28,10 @@
 - (double)outgoingBandwidth
 {
 	__block double result = 0.0;
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		result = smoothedAverageOutgoingBandwidth;
+		__typeof(self)strongSelf = weakSelf;
+		result = strongSelf->smoothedAverageOutgoingBandwidth;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -44,9 +45,10 @@
 - (double)incomingBandwidth
 {
 	__block double result = 0.0;
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		result = smoothedAverageIncomingBandwidth;
+		__typeof(self)strongSelf = weakSelf;
+		result = strongSelf->smoothedAverageIncomingBandwidth;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))

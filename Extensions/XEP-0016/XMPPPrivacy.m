@@ -122,9 +122,10 @@ typedef enum XMPPPrivacyQueryInfoType {
 	else
 	{
 		__block BOOL result;
-		
+		__weak __typeof(self)weakSelf = self;
 		dispatch_sync(moduleQueue, ^{
-			result = autoRetrievePrivacyListNames;
+			__typeof(self)strongSelf = weakSelf;
+			result = strongSelf->autoRetrievePrivacyListNames;
 		});
 		
 		return result;
@@ -133,9 +134,10 @@ typedef enum XMPPPrivacyQueryInfoType {
 
 - (void)setAutoRetrievePrivacyListNames:(BOOL)flag
 {
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		
-		autoRetrievePrivacyListNames = flag;
+		__typeof(self)strongSelf = weakSelf;
+		strongSelf->autoRetrievePrivacyListNames = flag;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -153,9 +155,10 @@ typedef enum XMPPPrivacyQueryInfoType {
 	else
 	{
 		__block BOOL result;
-		
+		__weak __typeof(self)weakSelf = self;
 		dispatch_sync(moduleQueue, ^{
-			result = autoRetrievePrivacyListItems;
+			__typeof(self)strongSelf = weakSelf;
+			result = strongSelf->autoRetrievePrivacyListItems;
 		});
 		
 		return result;
@@ -164,9 +167,10 @@ typedef enum XMPPPrivacyQueryInfoType {
 
 - (void)setAutoRetrievePrivacyListItems:(BOOL)flag
 {
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		
-		autoRetrievePrivacyListItems = flag;
+		__typeof(self)strongSelf = weakSelf;
+		strongSelf->autoRetrievePrivacyListItems = flag;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -184,9 +188,10 @@ typedef enum XMPPPrivacyQueryInfoType {
 	else
 	{
 		__block BOOL result;
-		
+		__weak __typeof(self)weakSelf = self;
 		dispatch_sync(moduleQueue, ^{
-			result = autoClearPrivacyListInfo;
+			__typeof(self)strongSelf = weakSelf;
+			result = strongSelf->autoClearPrivacyListInfo;
 		});
 		
 		return result;
@@ -195,9 +200,10 @@ typedef enum XMPPPrivacyQueryInfoType {
 
 - (void)setAutoClearPrivacyListInfo:(BOOL)flag
 {
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{
-		
-		autoClearPrivacyListInfo = flag;
+		__typeof(self)strongSelf = weakSelf;
+		strongSelf->autoClearPrivacyListInfo = flag;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -266,9 +272,10 @@ typedef enum XMPPPrivacyQueryInfoType {
 	}
 	else
 	{
+		__weak __typeof(self)weakSelf = self;
 		dispatch_async(moduleQueue, ^{ @autoreleasepool {
-			
-			[privacyDict removeAllObjects];
+			__typeof(self)strongSelf = weakSelf;
+			[strongSelf->privacyDict removeAllObjects];
 		}});
 	}
 }
@@ -282,10 +289,11 @@ typedef enum XMPPPrivacyQueryInfoType {
 	else
 	{
 		__block NSArray *result;
-		
+		__weak __typeof(self)weakSelf = self;
 		dispatch_sync(moduleQueue, ^{ @autoreleasepool {
 			
-			result = [[privacyDict allKeys] copy];
+			__typeof(self)strongSelf = weakSelf;
+			result = [[strongSelf->privacyDict allKeys] copy];
 		}});
 		
 		return result;
@@ -294,9 +302,11 @@ typedef enum XMPPPrivacyQueryInfoType {
 
 - (NSArray *)listWithName:(NSString *)privacyListName
 {
+	__weak __typeof(self)weakSelf = self;
 	NSArray* (^block)() = ^ NSArray* () {
 		
-		id result = privacyDict[privacyListName];
+		__typeof(self)strongSelf = weakSelf;
+		id result = strongSelf->privacyDict[privacyListName];
 		
 		if (result == [NSNull null]) // Not fetched yet
 			return nil;

@@ -95,11 +95,11 @@
 - (void)deactivate
 {
 	// Custom code goes here (if needed)
-    
+    __weak __typeof(self)weakSelf = self;
     dispatch_block_t block = ^{ @autoreleasepool {
-		
-		[_myvCardTracker removeAllIDs];
-		_myvCardTracker = nil;
+		__typeof(self)strongSelf = weakSelf;
+		[strongSelf->_myvCardTracker removeAllIDs];
+		strongSelf->_myvCardTracker = nil;
 		
 	}};
 	
@@ -126,20 +126,21 @@
 }
 
 - (void)fetchvCardTempForJID:(XMPPJID *)jid ignoreStorage:(BOOL)ignoreStorage
-{	
+{
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{ @autoreleasepool {
-		
+		__typeof(self)strongSelf = weakSelf;
 		XMPPvCardTemp *vCardTemp = nil;
 		
 		if (!ignoreStorage)
 		{
 			// Try loading from storage
-			vCardTemp = [_xmppvCardTempModuleStorage vCardTempForJID:jid xmppStream:xmppStream];
+			vCardTemp = [strongSelf->_xmppvCardTempModuleStorage vCardTempForJID:jid xmppStream:strongSelf->xmppStream];
 		}
 		
-		if (vCardTemp == nil && [_xmppvCardTempModuleStorage shouldFetchvCardTempForJID:jid xmppStream:xmppStream])
+		if (vCardTemp == nil && [strongSelf->_xmppvCardTempModuleStorage shouldFetchvCardTempForJID:jid xmppStream:strongSelf->xmppStream])
 		{
-			[self _fetchvCardTempForJID:jid];
+			[strongSelf _fetchvCardTempForJID:jid];
 		}
 		
 	}};
@@ -153,14 +154,14 @@
 - (XMPPvCardTemp *)vCardTempForJID:(XMPPJID *)jid shouldFetch:(BOOL)shouldFetch{
     
     __block XMPPvCardTemp *result;
-	
+	__weak __typeof(self)weakSelf = self;
 	dispatch_block_t block = ^{ @autoreleasepool {
+		__typeof(self)strongSelf = weakSelf;
+		XMPPvCardTemp *vCardTemp = [strongSelf->_xmppvCardTempModuleStorage vCardTempForJID:jid xmppStream:strongSelf->xmppStream];
 		
-		XMPPvCardTemp *vCardTemp = [_xmppvCardTempModuleStorage vCardTempForJID:jid xmppStream:xmppStream];
-		
-		if (vCardTemp == nil && shouldFetch && [_xmppvCardTempModuleStorage shouldFetchvCardTempForJID:jid xmppStream:xmppStream])
+		if (vCardTemp == nil && shouldFetch && [strongSelf->_xmppvCardTempModuleStorage shouldFetchvCardTempForJID:jid xmppStream:strongSelf->xmppStream])
 		{
-			[self _fetchvCardTempForJID:jid];
+			[strongSelf _fetchvCardTempForJID:jid];
 		}
 		
 		result = vCardTemp;
@@ -181,20 +182,20 @@
 
 - (void)updateMyvCardTemp:(XMPPvCardTemp *)vCardTemp
 {
-    
+    __weak __typeof(self)weakSelf = self;
     dispatch_block_t block = ^{ @autoreleasepool {
-
+__typeof(self)strongSelf = weakSelf;
         XMPPvCardTemp *newvCardTemp = [vCardTemp copy];
         
-        XMPPIQ *iq = [XMPPIQ iqWithType:@"set" to:nil elementID:[xmppStream generateUUID] child:newvCardTemp];
-        [xmppStream sendElement:iq];
+        XMPPIQ *iq = [XMPPIQ iqWithType:@"set" to:nil elementID:[strongSelf->xmppStream generateUUID] child:newvCardTemp];
+        [strongSelf->xmppStream sendElement:iq];
         
-        [_myvCardTracker addElement:iq
+        [strongSelf->_myvCardTracker addElement:iq
                              target:self
                            selector:@selector(handleMyvcard:withInfo:)
                             timeout:600];
         
-        [self _updatevCardTemp:newvCardTemp forJID:[xmppStream myJID]];
+        [strongSelf _updatevCardTemp:newvCardTemp forJID:[strongSelf->xmppStream myJID]];
         
     }};
 	
@@ -212,15 +213,15 @@
 - (void)_updatevCardTemp:(XMPPvCardTemp *)vCardTemp forJID:(XMPPJID *)jid
 {
     if(!jid) return;
-    
+    __weak __typeof(self)weakSelf = self;
 	// this method could be called from anywhere
 	dispatch_block_t block = ^{ @autoreleasepool {
-		
+		__typeof(self)strongSelf = weakSelf;
 		XMPPLogVerbose(@"%@: %s %@", THIS_FILE, __PRETTY_FUNCTION__, [jid bare]);
 		
-		[_xmppvCardTempModuleStorage setvCardTemp:vCardTemp forJID:jid xmppStream:xmppStream];
+		[strongSelf->_xmppvCardTempModuleStorage setvCardTemp:vCardTemp forJID:jid xmppStream:strongSelf->xmppStream];
 		
-		[(id <XMPPvCardTempModuleDelegate>)multicastDelegate xmppvCardTempModule:self
+		[(id <XMPPvCardTempModuleDelegate>)strongSelf->multicastDelegate xmppvCardTempModule:strongSelf
 		                                                     didReceivevCardTemp:vCardTemp
 		                                                                  forJID:jid];
 	}};
