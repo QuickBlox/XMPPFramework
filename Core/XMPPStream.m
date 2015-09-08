@@ -3295,8 +3295,8 @@ enum XMPPStreamConfig
     {
 		if (myJID_setByClient)
 		{
-			temp = @"<stream:stream xmlns='%@' xmlns:stream='%@' version='1.0' to='%@'>";
-            s2 = [NSString stringWithFormat:temp, xmlns, xmlns_stream, [myJID_setByClient domain]];
+			temp = @"<stream:stream xmlns='%@' xmlns:stream='%@' version='1.0' to='%@' from='%@'>";
+            s2 = [NSString stringWithFormat:temp, xmlns, xmlns_stream, [myJID_setByClient domain], [myJID_setByClient bare]];
 		}
         else if ([hostName length] > 0)
         {
