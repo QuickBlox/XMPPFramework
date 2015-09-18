@@ -58,10 +58,8 @@ static NSString *const XMPPMUCOwnerNamespace = @"http://jabber.org/protocol/muc#
  
 */
 
-- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName
-naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName;
-- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName
-naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName dispatchQueue:(dispatch_queue_t)queue;
+- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName;
+- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName dispatchQueue:(dispatch_queue_t)queue;
 
 #pragma mark Properties
 
@@ -75,8 +73,6 @@ naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName dispatchQueue:(disp
 @property (readonly) NSString *roomSubject;
 
 @property (readonly) BOOL isJoined;
-
-@property (readonly) NSString *naturalLanguageRoomName;
 
 @property (readwrite, copy) NSString *invitedUser;
 

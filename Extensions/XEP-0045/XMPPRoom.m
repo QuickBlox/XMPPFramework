@@ -37,12 +37,12 @@ enum XMPPRoomState
 
 @implementation XMPPRoom
 
-- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName
+- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName
 {
-    return [self initWithRoomJID:aRoomJID nickName:aNickName naturalLanguageRoomName:aNaturalLanguageRoomName dispatchQueue:NULL];
+    return [self initWithRoomJID:aRoomJID nickName:aNickName dispatchQueue:NULL];
 }
 
-- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName naturalLanguageRoomName:(NSString *)aNaturalLanguageRoomName dispatchQueue:(dispatch_queue_t)queue
+- (id)initWithRoomJID:(NSString *)aRoomJID nickName:(NSString *)aNickName dispatchQueue:(dispatch_queue_t)queue
 {
     NSParameterAssert(aRoomJID != nil);
     NSParameterAssert(aNickName != nil);
@@ -51,11 +51,10 @@ enum XMPPRoomState
     {
         roomJID = [XMPPJID jidWithString:[aRoomJID copy]];
         myNickname = [aNickName copy];
-        _naturalLanguageRoomName = [aNaturalLanguageRoomName copy];
         
         _occupants = [[NSMutableDictionary alloc] init];
         
-        XMPPLogTrace2(@"%@: init -> roomName(%@) nickName(%@) aNaturalLanguageRoomName(%@)", [self class], roomJID, myNickname, aNaturalLanguageRoomName);
+        XMPPLogTrace2(@"%@: init -> roomName(%@) nickName(%@)", [self class], roomJID, myNickname);
     }
     return self;
 }
@@ -1213,7 +1212,7 @@ enum XMPPRoomState
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    XMPPRoom *copy = [[[self class] allocWithZone:zone] initWithRoomJID:roomJID.bare nickName:myNickname naturalLanguageRoomName:_naturalLanguageRoomName dispatchQueue:moduleQueue];
+    XMPPRoom *copy = [[[self class] allocWithZone:zone] initWithRoomJID:roomJID.bare nickName:myNickname dispatchQueue:moduleQueue];
     
     copy->roomSubject     = [roomSubject copyWithZone:zone];
     copy->_invitedUser     = [_invitedUser copyWithZone:zone];
@@ -1244,7 +1243,6 @@ enum XMPPRoomState
 {
     if (self = [super init]){
         roomJID = [aDecoder  decodeObjectForKey:@"roomJID"];
-        _naturalLanguageRoomName = [aDecoder  decodeObjectForKey:@"naturalLanguageRoomName"];
         myNickname = [aDecoder decodeObjectForKey:@"nickName"];
         roomSubject = [aDecoder decodeObjectForKey:@"subject"];
         _invitedUser = [aDecoder decodeObjectForKey:@"invitedUser"];
@@ -1258,7 +1256,6 @@ enum XMPPRoomState
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [aCoder encodeObject:roomJID forKey:@"roomJID"];
-    [aCoder encodeObject:_naturalLanguageRoomName forKey:@"naturalLanguageRoomName"];
     [aCoder encodeObject:myNickname forKey:@"nickName"];
     [aCoder encodeObject:roomSubject forKey:@"subject"];
     [aCoder encodeObject:_invitedUser forKey:@"invitedUser"];
