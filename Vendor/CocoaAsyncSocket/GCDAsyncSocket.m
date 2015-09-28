@@ -862,7 +862,7 @@ enum QBGCDAsyncSocketConfig
 
 @implementation GCDAsyncSocket
 {
-	uint32_t flags;
+    uint32_t flags;
 	uint16_t config;
 	
 	__weak id delegate;
@@ -5823,7 +5823,10 @@ enum QBGCDAsyncSocketConfig
 	// 
 	// We'll know these conditions are met when both kStartingReadTLS and kStartingWriteTLS are set
 	
-	if ((flags & kStartingReadTLS) && (flags & kStartingWriteTLS))
+    BOOL readTLS = (flags & kStartingReadTLS) == kStartingReadTLS;
+    BOOL writeTLS = (flags & kStartingWriteTLS) == kStartingWriteTLS;
+    
+	if (readTLS && writeTLS)
 	{
 		BOOL useSecureTransport = YES;
 		
