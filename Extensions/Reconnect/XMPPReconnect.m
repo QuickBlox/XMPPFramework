@@ -76,6 +76,20 @@ typedef SCNetworkConnectionFlags SCNetworkReachabilityFlags;
 		reconnectTicket = 0;
 		
 		previousReachabilityFlags = IMPOSSIBLE_REACHABILITY_FLAGS;
+        
+        // start monitor immediately
+        // Added in Igor Khomenko QBXMPPReconnect
+
+        dispatch_block_t block = ^{ @autoreleasepool {
+            [self setShouldReconnect:YES];
+            [self setupNetworkMonitoring];
+        }};
+        
+        if (dispatch_get_current_queue() == moduleQueue) {
+            block();
+        } else {
+            dispatch_async(moduleQueue, block);
+        }
 	}
 	return self;
 }
@@ -269,7 +283,9 @@ typedef SCNetworkConnectionFlags SCNetworkReachabilityFlags;
 	reconnectTicket++;
 	
 	[self teardownReconnectTimer];
-	[self teardownNetworkMonitoring];
+    
+    // Disabled in Igor Khomenko QBXMPPReconnect
+//	[self teardownNetworkMonitoring];
 }
 
 - (void)xmppStreamDidAuthenticate:(XMPPStream *)sender
@@ -307,13 +323,15 @@ typedef SCNetworkConnectionFlags SCNetworkReachabilityFlags;
 	}
 }
 
-- (void)xmppStreamWasToldToDisconnect:(XMPPStream *)sender
-{
-	// This method is executed on our moduleQueue.
-	
-	// We should not automatically attempt to reconnect when the connection closes.
-	[self stop];
-}
+// Disabled in Igor Khomenko QBXMPPReconnect
+
+//- (void)xmppStreamWasToldToDisconnect:(XMPPStream *)sender
+//{
+//	// This method is executed on our moduleQueue.
+//	
+//	// We should not automatically attempt to reconnect when the connection closes.
+//	[self stop];
+//}
 
 - (void)xmppStreamDidDisconnect:(XMPPStream *)sender withError:(NSError *)error
 {
@@ -356,9 +374,27 @@ typedef SCNetworkConnectionFlags SCNetworkReachabilityFlags;
 static void XMPPReconnectReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info)
 {
 	@autoreleasepool {
-	
-		XMPPReconnect *instance = (__bridge XMPPReconnect *)info;
-		[instance maybeAttemptReconnectWithReachabilityFlags:flags];
+        XMPPReconnect *instance = (__bridge XMPPReconnect *)info;
+        
+        // Disconnect when host is not reachable
+        // Added in Igor Khomenko QBXMPPReconnect
+        if ((flags & kSCNetworkReachabilityFlagsReachable) == 0){
+//            QBDLog(@"The target host is not reachable.");
+            
+            [instance.xmppStream disconnect];
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [instance manualStart];
+            });
+            
+            return;
+        }
+        
+        // attempt to reconnect if disconnected
+        // Added in Igor Khomenko QBXMPPReconnect
+        if ([instance.xmppStream isDisconnected]){
+            [instance maybeAttemptReconnectWithReachabilityFlags:flags];
+        }
 	}
 }
 
