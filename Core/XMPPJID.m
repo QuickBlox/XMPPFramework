@@ -110,21 +110,31 @@
 
 + (XMPPJID *)jidWithString:(NSString *)jidStr
 {
-	NSString *user;
-	NSString *domain;
-	NSString *resource;
-	
-	if ([XMPPJID parse:jidStr outUser:&user outDomain:&domain outResource:&resource])
-	{
-		XMPPJID *jid = [[XMPPJID alloc] init];
-		jid->user = [user copy];
-		jid->domain = [domain copy];
-		jid->resource = [resource copy];
-		
-		return jid;
-	}
-	
-	return nil;
+    static NSMutableDictionary *cachedJID = nil;
+    
+    if (!cachedJID) {
+        cachedJID = @{}.mutableCopy;
+    }
+    
+    XMPPJID *jid = cachedJID[jidStr];
+
+    if (!jid) {
+        NSString *user;
+        NSString *domain;
+        NSString *resource;
+
+        if ([XMPPJID parse:jidStr outUser:&user outDomain:&domain outResource:&resource])
+        {
+            jid = [[XMPPJID alloc] init];
+            jid->user = [user copy];
+            jid->domain = [domain copy];
+            jid->resource = [resource copy];
+            
+            cachedJID[jidStr] = jid;
+        }
+    }
+    
+	return jid;
 }
 
 + (XMPPJID *)jidWithString:(NSString *)jidStr resource:(NSString *)resource
