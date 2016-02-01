@@ -111,16 +111,21 @@
 + (XMPPJID *)jidWithString:(NSString *)jidStr
 {
 
-	static NSCache *cacheJIDs = nil;
+    static NSLock *cachedJIDsLock;
+	static NSMutableDictionary *cacheJIDs = nil;
 	static dispatch_once_t onceToken;
 	
 	dispatch_once(&onceToken, ^{
-		cacheJIDs = [[NSCache alloc] init];
+        cachedJIDsLock = [[NSLock alloc] init];
+		cacheJIDs = [[NSMutableDictionary alloc] init];
 	});
 	
-	XMPPJID *jid = [cacheJIDs objectForKey:jidStr];
+    [cachedJIDsLock lock];
+    XMPPJID *jid = cacheJIDs[jidStr];
+    [cachedJIDsLock unlock];
 	
 	if (!jid) {
+        
 		NSString *user;
 		NSString *domain;
 		NSString *resource;
@@ -132,11 +137,13 @@
 			jid->domain = [domain copy];
 			jid->resource = [resource copy];
 			
-			[cacheJIDs setObject:jid forKey:[jidStr copy]];
+            [cachedJIDsLock lock];
+            cacheJIDs[jidStr.copy] = jid;
+            [cachedJIDsLock unlock];
 		}
 	}
+    
 	return jid;
-
 }
 
 + (XMPPJID *)jidWithString:(NSString *)jidStr resource:(NSString *)resource
