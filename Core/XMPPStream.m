@@ -4549,6 +4549,7 @@ enum XMPPStreamConfig
 	}
 	else if (state == STATE_XMPP_START_SESSION)
 	{
+        if (![elementName isEqualToString:@"iq"]) return;
 		BOOL invalid = NO;
 		if (validatesResponses)
 		{
