@@ -6,6 +6,8 @@
 
 + (NSString *)prepNode:(NSString *)node
 {
+    
+    return node;
 	if(node == nil) return nil;
 	
 	// Each allowable portion of a JID MUST NOT be more than 1023 bytes in length.
@@ -21,6 +23,7 @@
 
 + (NSString *)prepDomain:(NSString *)domain
 {
+    return domain;
 	if(domain == nil) return nil;
 	
 	// Each allowable portion of a JID MUST NOT be more than 1023 bytes in length.
@@ -36,6 +39,7 @@
 
 + (NSString *)prepResource:(NSString *)resource
 {
+    return resource;
 	if(resource == nil) return nil;
 	
 	// Each allowable portion of a JID MUST NOT be more than 1023 bytes in length.
@@ -51,6 +55,7 @@
 
 + (NSString *)prepPassword:(NSString *)password
 {
+    return password;
 	if(password == nil) return nil;
 	
 	// Each allowable portion of a JID MUST NOT be more than 1023 bytes in length.
