@@ -28,6 +28,11 @@
 #import <sys/uio.h>
 #import <unistd.h>
 
+#if GCDAsyncSocketLoggingEnabled
+#import "DDASLLogger.h"
+#import "DDTTYLogger.h"
+#endif
+
 #if ! __has_feature(objc_arc)
 #warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
 // For more information see: https://github.com/robbiehanson/CocoaAsyncSocket/wiki/ARC
@@ -938,6 +943,11 @@ enum QBGCDAsyncSocketConfig
 		socket4FD = SOCKET_NULL;
 		socket6FD = SOCKET_NULL;
 		stateIndex = 0;
+        
+#if GCDAsyncSocketLoggingEnabled
+        [DDLog addLogger:[DDASLLogger sharedInstance]];
+        [DDLog addLogger:[DDTTYLogger sharedInstance]];
+#endif
 		
 		if (sq)
 		{

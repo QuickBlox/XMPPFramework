@@ -43,7 +43,7 @@ extern NSString *const QBGCDAsyncSocketSSLCipherSuites;
 extern NSString *const GCDAsyncSocketSSLDiffieHellmanParameters;
 #endif
 
-#define QBGCDAsyncSocketLoggingContext 65535
+#define GCDAsyncSocketLoggingContext 65535
 
 
 enum QBGCDAsyncSocketError
