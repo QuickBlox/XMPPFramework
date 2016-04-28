@@ -119,7 +119,10 @@ enum XMPPRoomState
 	
 	dispatch_block_t block = ^{ @autoreleasepool {
 		
-		if (self.isJoined)
+        // Default requirement to leave room is state = Joined
+        // Checking also for Joining state, cause meanwhile it is waiting for server response
+        // while we already want to deactivate room without server callback handling
+        if ((state & kXMPPRoomStateJoining) || (state & kXMPPRoomStateJoined))
 		{
 			[self leaveRoom];
 		}
