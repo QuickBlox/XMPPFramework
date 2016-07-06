@@ -28,11 +28,6 @@
 #import <sys/uio.h>
 #import <unistd.h>
 
-#if GCDAsyncSocketLoggingEnabled
-#import "DDASLLogger.h"
-#import "DDTTYLogger.h"
-#endif
-
 #if ! __has_feature(objc_arc)
 #warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
 // For more information see: https://github.com/robbiehanson/CocoaAsyncSocket/wiki/ARC
@@ -40,8 +35,14 @@
 
 
 #ifndef GCDAsyncSocketLoggingEnabled
-#define GCDAsyncSocketLoggingEnabled 0
+#define GCDAsyncSocketLoggingEnabled 1
 #endif
+
+#if GCDAsyncSocketLoggingEnabled
+#import "DDASLLogger.h"
+#import "DDTTYLogger.h"
+#endif
+
 
 #if GCDAsyncSocketLoggingEnabled
 
@@ -116,8 +117,8 @@ static const int logLevel = GCDAsyncSocketLogLevel;
 NSString *const QBGCDAsyncSocketException = @"GCDAsyncSocketException";
 NSString *const QBGCDAsyncSocketErrorDomain = @"GCDAsyncSocketErrorDomain";
 
-NSString *const QBGCDAsyncSocketQueueName = @"GCDAsyncSocket";
-NSString *const QBGCDAsyncSocketThreadName = @"GCDAsyncSocket-CFStream";
+NSString *const QBGCDAsyncSocketQueueName = @"QBGCDAsyncSocket";
+NSString *const QBGCDAsyncSocketThreadName = @"QBGCDAsyncSocket-CFStream";
 
 NSString *const QBGCDAsyncSocketManuallyEvaluateTrust = @"GCDAsyncSocketManuallyEvaluateTrust";
 #if TARGET_OS_IPHONE
@@ -945,8 +946,11 @@ enum QBGCDAsyncSocketConfig
 		stateIndex = 0;
         
 #if GCDAsyncSocketLoggingEnabled
-        [DDLog addLogger:[DDASLLogger sharedInstance]];
-        [DDLog addLogger:[DDTTYLogger sharedInstance]];
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            [DDLog addLogger:[DDASLLogger sharedInstance]];
+            [DDLog addLogger:[DDTTYLogger sharedInstance]];
+        });
 #endif
 		
 		if (sq)
@@ -6837,7 +6841,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 	dispatch_once(&predicate, ^{
 		
 		cfstreamThreadRetainCount = 0;
-		cfstreamThreadSetupQueue = dispatch_queue_create("GCDAsyncSocket-CFStreamThreadSetup", DISPATCH_QUEUE_SERIAL);
+		cfstreamThreadSetupQueue = dispatch_queue_create("QBGCDAsyncSocket-CFStreamThreadSetup", DISPATCH_QUEUE_SERIAL);
 	});
 	
 	dispatch_sync(cfstreamThreadSetupQueue, ^{ @autoreleasepool {
