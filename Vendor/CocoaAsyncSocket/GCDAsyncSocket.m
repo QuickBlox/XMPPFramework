@@ -40,6 +40,12 @@
 #endif
 
 #if GCDAsyncSocketLoggingEnabled
+#import "DDASLLogger.h"
+#import "DDTTYLogger.h"
+#endif
+
+
+#if GCDAsyncSocketLoggingEnabled
 
 // Logging Enabled - See log level below
 
@@ -115,7 +121,7 @@ NSString *const QBGCDAsyncSocketErrorDomain = @"QBGCDAsyncSocketErrorDomain";
 NSString *const QBGCDAsyncSocketQueueName = @"QBGCDAsyncSocket";
 NSString *const QBGCDAsyncSocketThreadName = @"QBGCDAsyncSocket-CFStream";
 
-NSString *const QBQBGCDAsyncSocketManuallyEvaluateTrust = @"QBGCDAsyncSocketManuallyEvaluateTrust";
+NSString *const QBGCDAsyncSocketManuallyEvaluateTrust = @"QBGCDAsyncSocketManuallyEvaluateTrust";
 #if TARGET_OS_IPHONE
 NSString *const QBGCDAsyncSocketUseCFStreamForTLS = @"QBGCDAsyncSocketUseCFStreamForTLS";
 #endif
@@ -938,6 +944,15 @@ static dispatch_queue_t cfstreamThreadSetupQueue; // setup & teardown
     {
         delegate = aDelegate;
         delegateQueue = dq;
+        
+#if GCDAsyncSocketLoggingEnabled
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            [DDLog addLogger:[DDASLLogger sharedInstance]];
+            [DDLog addLogger:[DDTTYLogger sharedInstance]];
+        });
+#endif
+
         
 #if !OS_OBJECT_USE_OBJC
         if (dq) dispatch_retain(dq);
