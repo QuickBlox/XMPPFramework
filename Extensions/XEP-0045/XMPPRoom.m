@@ -3,10 +3,12 @@
 #import "XMPPIDTracker.h"
 #import "XMPPMessage+XEP0045.h"
 #import "XMPPLogging.h"
-#import "ChatConsts.h"
 #import "DDLog.h"
 
 static const int ddLogLevel = LOG_LEVEL_VERBOSE;
+
+static NSString * const qbChatPresenceExtension = @"x";
+static NSString * const qbChatPresenceExtensionXMLNS = @"http://chat.quickblox.com/presence_extension";
 
 // Log levels: off, error, warn, info, verbose
 // Log flags: trace
