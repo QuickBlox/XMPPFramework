@@ -3573,7 +3573,7 @@ enum XMPPStreamConfig
 		// We are successfully authenticated (via sasl:digest-md5)
 		[self setIsAuthenticated:YES];
 		
-		BOOL shouldRenegotiate = YES;
+		BOOL shouldRenegotiate = NO;
 		if ([auth respondsToSelector:@selector(shouldResendOpeningNegotiationAfterSuccessfulAuthentication)])
 		{
 			shouldRenegotiate = [auth shouldResendOpeningNegotiationAfterSuccessfulAuthentication];
@@ -3596,6 +3596,7 @@ enum XMPPStreamConfig
 		}
 		else
 		{
+            [self startBinding];
 			// Revert back to connected state (from authenticating state)
 			state = STATE_XMPP_CONNECTED;
 			
@@ -4180,15 +4181,15 @@ enum XMPPStreamConfig
 	srvResults = nil;
 	
 	// Are we using old-style SSL? (Not the upgrade to TLS technique specified in the XMPP RFC)
-	if ([self isSecure])
-	{
-		// The connection must be secured immediately (just like with HTTPS)
+//	if ([self isSecure])
+//	{
+//		// The connection must be secured immediately (just like with HTTPS)
 		[self startTLS];
-	}
-	else
-	{
-		[self startNegotiation];
-	}
+//	}
+//	else
+//	{
+//		[self startNegotiation];
+//	}
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReceiveTrust:(SecTrustRef)trust
@@ -4504,7 +4505,7 @@ enum XMPPStreamConfig
 	{
 		// We've just read in the stream features
 		// We consider this part of the root element, so we'll add it (replacing any previously sent features)
-    [rootElement setChildren:@[element]];
+        [rootElement setChildren:@[element]];
 		
 		// Call a method to handle any requirements set forth in the features
 		[self handleStreamFeatures];
