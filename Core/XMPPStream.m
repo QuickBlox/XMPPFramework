@@ -3596,7 +3596,7 @@ enum XMPPStreamConfig
 		}
 		else
 		{
-            [self startBinding];
+            [self startStandardBinding];
 			// Revert back to connected state (from authenticating state)
 			state = STATE_XMPP_CONNECTED;
 			
