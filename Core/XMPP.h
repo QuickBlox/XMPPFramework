@@ -23,7 +23,7 @@
 #import "XMPPAnonymousAuthentication.h"
 #import "XMPPDeprecatedPlainAuthentication.h"
 #import "XMPPDeprecatedDigestAuthentication.h"
-
+#import "XMPPPlainFastAuthentication.h"
 // 
 // Categories
 // 

@@ -1944,8 +1944,13 @@ enum XMPPStreamConfig
 		
 		id <XMPPSASLAuthentication> someAuth = nil;
         
-		if ([self supportsSCRAMSHA1Authentication])
-		{
+        if ([self supportsPlainFastAuthentication]) {
+            
+            someAuth = [[XMPPPlainFastAuthentication alloc] initWithStream:self password:password];
+            result = [self authenticate:someAuth error:&err];
+            
+        } else if ([self supportsSCRAMSHA1Authentication]) {
+            
 			someAuth = [[XMPPSCRAMSHA1Authentication alloc] initWithStream:self password:password];
 			result = [self authenticate:someAuth error:&err];
 		}
@@ -3596,7 +3601,9 @@ enum XMPPStreamConfig
 		}
 		else
 		{
-            [self startStandardBinding];
+            if (![auth isKindOfClass:[XMPPPlainFastAuthentication class]]) {
+                [self startStandardBinding];
+            }
 			// Revert back to connected state (from authenticating state)
 			state = STATE_XMPP_CONNECTED;
 			
