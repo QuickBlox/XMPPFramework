@@ -251,13 +251,14 @@ enum XMPPStreamConfig
     // Note: We're waiting for the <stream:features> now
 }
 
-- (void)boshTransport:(QBBoshTransport *)boshTransport
-     didReceiveStanza:(NSXMLElement *)element {
+- (void)boshTransport:(QBBoshTransport *)boshTransport didReceiveStanza:(NSXMLElement *)element {
     
     dispatch_block_t block = ^{
         
-        XMPPLogTrace();
-        XMPPLogRecvPost(@"RECV: %@", [element compactXMLString]);
+        if (!_bosh) {
+            XMPPLogTrace();
+            XMPPLogRecvPost(@"RECV: %@", [element compactXMLString]);
+        }
         
         NSString *elementName = [element name];
         
@@ -371,13 +372,10 @@ enum XMPPStreamConfig
     }
     else
     {
-        __block NSString *result;
-        
         dispatch_sync(xmppQueue, ^{
             block();
         });
-        
-        
+
     }
     
 }
@@ -1220,170 +1218,172 @@ enum XMPPStreamConfig
     return result;
 }
 
-//- (BOOL)connectWithTimeout:(NSTimeInterval)timeout error:(NSError **)errPtr
-//{
-//	XMPPLogTrace();
-//
-//	__block BOOL result = NO;
-//	__block NSError *err = nil;
-//
-//	dispatch_block_t block = ^{ @autoreleasepool {
-//
-//		if (state != STATE_XMPP_DISCONNECTED)
-//		{
-//			NSString *errMsg = @"Attempting to connect while already connected or connecting.";
-//			NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
-//
-//			err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidState userInfo:info];
-//
-//			result = NO;
-//			return_from_block;
-//		}
-//
-//		if ([self isP2P])
-//		{
-//			NSString *errMsg = @"P2P streams must use either connectTo:withAddress: or connectP2PWithSocket:.";
-//			NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
-//
-//			err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidType userInfo:info];
-//
-//			result = NO;
-//			return_from_block;
-//		}
-//
-//		if (myJID_setByClient == nil)
-//		{
-//			// Note: If you wish to use anonymous authentication, you should still set myJID prior to calling connect.
-//			// You can simply set it to something like "anonymous@<domain>", where "<domain>" is the proper domain.
-//			// After the authentication process, you can query the myJID property to see what your assigned JID is.
-//			//
-//			// Setting myJID allows the framework to follow the xmpp protocol properly,
-//			// and it allows the framework to connect to servers without a DNS entry.
-//			//
-//			// For example, one may setup a private xmpp server for internal testing on their local network.
-//			// The xmpp domain of the server may be something like "testing.mycompany.com",
-//			// but since the server is internal, an IP (192.168.1.22) is used as the hostname to connect.
-//			//
-//			// Proper connection requires a TCP connection to the IP (192.168.1.22),
-//			// but the xmpp handshake requires the xmpp domain (testing.mycompany.com).
-//
-//			NSString *errMsg = @"You must set myJID before calling connect.";
-//			NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
-//
-//			err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidProperty userInfo:info];
-//
-//			result = NO;
-//			return_from_block;
-//		}
-//
-//		// Notify delegates
-//		[multicastDelegate xmppStreamWillConnect:self];
-//
-//		if ([hostName length] == 0)
-//		{
-//			// Resolve the hostName via myJID SRV resolution
-//
-//			state = STATE_XMPP_RESOLVING_SRV;
-//
-//			srvResolver = [[XMPPSRVResolver alloc] initWithdDelegate:self delegateQueue:xmppQueue resolverQueue:NULL];
-//
-//			srvResults = nil;
-//			srvResultsIndex = 0;
-//
-//			NSString *srvName = [XMPPSRVResolver srvNameFromXMPPDomain:[myJID_setByClient domain]];
-//
-//			[srvResolver startWithSRVName:srvName timeout:TIMEOUT_SRV_RESOLUTION];
-//
-//			result = YES;
-//		}
-//		else
-//		{
-//			// Open TCP connection to the configured hostName.
-//
-//			state = STATE_XMPP_CONNECTING;
-//
-//			NSError *connectErr = nil;
-//			result = [self connectToHost:hostName onPort:hostPort withTimeout:XMPPStreamTimeoutNone error:&connectErr];
-//
-//			if (!result)
-//			{
-//				err = connectErr;
-//				state = STATE_XMPP_DISCONNECTED;
-//			}
-//		}
-//
-//        if(result)
-//        {
-//            [self startConnectTimeout:timeout];
-//        }
-//	}};
-//
-//	if (dispatch_get_specific(xmppQueueTag))
-//		block();
-//	else
-//		dispatch_sync(xmppQueue, block);
-//
-//	if (errPtr)
-//		*errPtr = err;
-//
-//	return result;
-//}
 
 - (BOOL)connectWithTimeout:(NSTimeInterval)timeout error:(NSError **)errPtr
 {
-    __block BOOL result = NO;
-    __block NSError *err = nil;
     
-    dispatch_block_t block = ^{ @autoreleasepool {
+    if (_bosh) {
+        __block BOOL result = NO;
+        __block NSError *err = nil;
         
-        if (state != STATE_XMPP_DISCONNECTED)
-        {
-            NSString *errMsg = @"Attempting to connect while already connected or connecting.";
-            NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
+        dispatch_block_t block = ^{ @autoreleasepool {
             
-            err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidState userInfo:info];
+            if (state != STATE_XMPP_DISCONNECTED)
+            {
+                NSString *errMsg = @"Attempting to connect while already connected or connecting.";
+                NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
+                
+                err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidState userInfo:info];
+                
+                result = NO;
+                return_from_block;
+            }
             
-            result = NO;
-            return_from_block;
-        }
-        
-        // Notify delegates
-        [multicastDelegate xmppStreamWillConnect:self];
-        // Open TCP connection to the configured hostName.
-        state = STATE_XMPP_CONNECTING;
-        
-        NSError *connectErr = nil;
-        
-        NSAssert(dispatch_get_specific(xmppQueueTag), @"Invoked on incorrect queue");
-        
-        result = [_bosh connectWithUser:self.myJID];
-        
-        if (result && [self resetByteCountPerConnection]) {
+            // Notify delegates
+            [multicastDelegate xmppStreamWillConnect:self];
+            // Open TCP connection to the configured hostName.
+            state = STATE_XMPP_CONNECTING;
             
-            numberOfBytesSent = 0;
-            numberOfBytesReceived = 0;
-        }
+            NSError *connectErr = nil;
+            
+            NSAssert(dispatch_get_specific(xmppQueueTag), @"Invoked on incorrect queue");
+            
+            result = [_bosh connectWithUser:self.myJID];
+            
+            if (result && [self resetByteCountPerConnection]) {
+                
+                numberOfBytesSent = 0;
+                numberOfBytesReceived = 0;
+            }
+            
+            if (!result) {
+                
+                err = connectErr;
+                state = STATE_XMPP_DISCONNECTED;
+            }
+            else {
+                
+                state = STATE_XMPP_OPENING;
+            }
+        }};
         
-        if (!result) {
+        if (dispatch_get_specific(xmppQueueTag))
+            block();
+        else
+            dispatch_sync(xmppQueue, block);
+        
+        if (errPtr)
+            *errPtr = err;
+        
+        return result;
+    }
+    else {
+        XMPPLogTrace();
+        
+        __block BOOL result = NO;
+        __block NSError *err = nil;
+        
+        dispatch_block_t block = ^{ @autoreleasepool {
             
-            err = connectErr;
-            state = STATE_XMPP_DISCONNECTED;
-        }
-        else {
+            if (state != STATE_XMPP_DISCONNECTED)
+            {
+                NSString *errMsg = @"Attempting to connect while already connected or connecting.";
+                NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
+                
+                err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidState userInfo:info];
+                
+                result = NO;
+                return_from_block;
+            }
             
-            state = STATE_XMPP_OPENING;
-        }
-    }};
-    
-    if (dispatch_get_specific(xmppQueueTag))
-        block();
-    else
-        dispatch_sync(xmppQueue, block);
-    
-    if (errPtr)
-        *errPtr = err;
-    
-    return result;
+            if ([self isP2P])
+            {
+                NSString *errMsg = @"P2P streams must use either connectTo:withAddress: or connectP2PWithSocket:.";
+                NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
+                
+                err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidType userInfo:info];
+                
+                result = NO;
+                return_from_block;
+            }
+            
+            if (myJID_setByClient == nil)
+            {
+                // Note: If you wish to use anonymous authentication, you should still set myJID prior to calling connect.
+                // You can simply set it to something like "anonymous@<domain>", where "<domain>" is the proper domain.
+                // After the authentication process, you can query the myJID property to see what your assigned JID is.
+                //
+                // Setting myJID allows the framework to follow the xmpp protocol properly,
+                // and it allows the framework to connect to servers without a DNS entry.
+                //
+                // For example, one may setup a private xmpp server for internal testing on their local network.
+                // The xmpp domain of the server may be something like "testing.mycompany.com",
+                // but since the server is internal, an IP (192.168.1.22) is used as the hostname to connect.
+                //
+                // Proper connection requires a TCP connection to the IP (192.168.1.22),
+                // but the xmpp handshake requires the xmpp domain (testing.mycompany.com).
+                
+                NSString *errMsg = @"You must set myJID before calling connect.";
+                NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
+                
+                err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidProperty userInfo:info];
+                
+                result = NO;
+                return_from_block;
+            }
+            
+            // Notify delegates
+            [multicastDelegate xmppStreamWillConnect:self];
+            
+            if ([hostName length] == 0)
+            {
+                // Resolve the hostName via myJID SRV resolution
+                
+                state = STATE_XMPP_RESOLVING_SRV;
+                
+                srvResolver = [[XMPPSRVResolver alloc] initWithdDelegate:self delegateQueue:xmppQueue resolverQueue:NULL];
+                
+                srvResults = nil;
+                srvResultsIndex = 0;
+                
+                NSString *srvName = [XMPPSRVResolver srvNameFromXMPPDomain:[myJID_setByClient domain]];
+                
+                [srvResolver startWithSRVName:srvName timeout:TIMEOUT_SRV_RESOLUTION];
+                
+                result = YES;
+            }
+            else
+            {
+                // Open TCP connection to the configured hostName.
+                
+                state = STATE_XMPP_CONNECTING;
+                
+                NSError *connectErr = nil;
+                result = [self connectToHost:hostName onPort:hostPort withTimeout:XMPPStreamTimeoutNone error:&connectErr];
+                
+                if (!result)
+                {
+                    err = connectErr;
+                    state = STATE_XMPP_DISCONNECTED;
+                }
+            }
+            
+            if(result)
+            {
+                [self startConnectTimeout:timeout];
+            }
+        }};
+        
+        if (dispatch_get_specific(xmppQueueTag))
+            block();
+        else
+            dispatch_sync(xmppQueue, block);
+        
+        if (errPtr)
+            *errPtr = err;
+        
+        return result;
+    }
 }
 
 - (BOOL)oldSchoolSecureConnectWithTimeout:(NSTimeInterval)timeout error:(NSError **)errPtr
@@ -4078,6 +4078,10 @@ enum XMPPStreamConfig
             
             XMPPLogSend(@"SEND: %@", outgoingStr);
             numberOfBytesSent += [outgoingData length];
+            
+            [asyncSocket writeData:outgoingData
+                       withTimeout:TIMEOUT_XMPP_WRITE
+                               tag:TAG_XMPP_WRITE_STREAM];
         }
         
         [idTracker addElement:iq
