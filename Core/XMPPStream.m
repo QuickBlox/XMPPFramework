@@ -253,117 +253,10 @@ enum XMPPStreamConfig
 
 - (void)boshTransport:(QBBoshTransport *)boshTransport didReceiveStanza:(NSXMLElement *)element {
     
-    dispatch_block_t block = ^{
+    dispatch_block_t block = ^{ @autoreleasepool {
         
-        if (!_bosh) {
-            XMPPLogTrace();
-            XMPPLogRecvPost(@"RECV: %@", [element compactXMLString]);
+            [self xmppParser:nil didReadElement:element];
         }
-        
-        NSString *elementName = [element name];
-        
-        if ([elementName isEqualToString:@"stream:error"] || [elementName isEqualToString:@"error"])
-        {
-            [multicastDelegate xmppStream:self didReceiveError:element];
-            
-            return;
-        }
-        
-        if (state == STATE_XMPP_NEGOTIATING)
-        {
-            // We've just read in the stream features
-            // We consider this part of the root element, so we'll add it (replacing any previously sent features)
-            [rootElement setChildren:@[element]];
-            
-            // Call a method to handle any requirements set forth in the features
-            [self handleStreamFeatures];
-        }
-        else if (state == STATE_XMPP_STARTTLS_1)
-        {
-            // The response from our starttls message
-            [self handleStartTLSResponse:element];
-        }
-        else if (state == STATE_XMPP_REGISTERING)
-        {
-            // The iq response from our registration request
-            [self handleRegistration:element];
-        }
-        else if (state == STATE_XMPP_AUTH)
-        {
-            // Some response to the authentication process
-            [self handleAuth:element];
-        }
-        else if (state == STATE_XMPP_BINDING)
-        {
-            if (customBinding)
-            {
-                [self handleCustomBinding:element];
-            }
-            else
-            {
-                BOOL invalid = NO;
-                if (validatesResponses)
-                {
-                    XMPPIQ *iq = [XMPPIQ iqFromElement:element];
-                    if (![idTracker invokeForElement:iq withObject:nil])
-                    {
-                        invalid = YES;
-                    }
-                }
-                if (!invalid)
-                {
-                    // The response from our binding request
-                    [self handleStandardBinding:element];
-                }
-            }
-        }
-        else if (state == STATE_XMPP_START_SESSION)
-        {
-            if (![elementName isEqualToString:@"iq"]) return;
-            BOOL invalid = NO;
-            if (validatesResponses)
-            {
-                XMPPIQ *iq = [XMPPIQ iqFromElement:element];
-                if (![idTracker invokeForElement:iq withObject:nil])
-                {
-                    invalid = YES;
-                }
-            }
-            if (!invalid)
-            {
-                // The response from our start session request
-                [self handleStartSessionResponse:element];
-            }
-        }
-        else
-        {
-            if ([elementName isEqualToString:@"iq"])
-            {
-                [self receiveIQ:[XMPPIQ iqFromElement:element]];
-            }
-            else if ([elementName isEqualToString:@"message"])
-            {
-                [self receiveMessage:[XMPPMessage messageFromElement:element]];
-            }
-            else if ([elementName isEqualToString:@"presence"])
-            {
-                [self receivePresence:[XMPPPresence presenceFromElement:element]];
-            }
-            else if ([self isP2P] &&
-                     ([elementName isEqualToString:@"stream:features"] || [elementName isEqualToString:@"features"]))
-            {
-                [multicastDelegate xmppStream:self didReceiveP2PFeatures:element];
-            }
-            else if ([customElementNames countForObject:elementName])
-            {
-                [multicastDelegate xmppStream:self didReceiveCustomElement:element];
-            }
-            else
-            {
-                [multicastDelegate xmppStream:self didReceiveError:element];
-            }
-        }
-        
     };
     
     if (dispatch_get_specific(xmppQueueTag))
@@ -375,9 +268,7 @@ enum XMPPStreamConfig
         dispatch_sync(xmppQueue, ^{
             block();
         });
-
     }
-    
 }
 
 /**
@@ -1219,82 +1110,47 @@ enum XMPPStreamConfig
 }
 
 
-- (BOOL)connectWithTimeout:(NSTimeInterval)timeout error:(NSError **)errPtr
-{
+- (BOOL)connectWithTimeout:(NSTimeInterval)timeout error:(NSError **)errPtr {
     
-    if (_bosh) {
-        __block BOOL result = NO;
-        __block NSError *err = nil;
+    XMPPLogTrace();
+    
+    __block BOOL result = NO;
+    __block NSError *err = nil;
+    
+    dispatch_block_t block = ^{ @autoreleasepool {
         
-        dispatch_block_t block = ^{ @autoreleasepool {
+        
+        if (state != STATE_XMPP_DISCONNECTED)
+        {
+            NSString *errMsg = @"Attempting to connect while already connected or connecting.";
+            NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
             
-            if (state != STATE_XMPP_DISCONNECTED)
-            {
-                NSString *errMsg = @"Attempting to connect while already connected or connecting.";
-                NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
-                
-                err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidState userInfo:info];
-                
-                result = NO;
-                return_from_block;
-            }
+            err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidState userInfo:info];
+            
+            result = NO;
+            return_from_block;
+        }
+        
+        if (_bosh) {
             
             // Notify delegates
             [multicastDelegate xmppStreamWillConnect:self];
             // Open TCP connection to the configured hostName.
             state = STATE_XMPP_CONNECTING;
             
-            NSError *connectErr = nil;
-            
             NSAssert(dispatch_get_specific(xmppQueueTag), @"Invoked on incorrect queue");
             
-            result = [_bosh connectWithUser:self.myJID];
+            [_bosh connectWithUser:self.myJID];
             
-            if (result && [self resetByteCountPerConnection]) {
+            if ([self resetByteCountPerConnection]) {
                 
                 numberOfBytesSent = 0;
                 numberOfBytesReceived = 0;
             }
             
-            if (!result) {
-                
-                err = connectErr;
-                state = STATE_XMPP_DISCONNECTED;
-            }
-            else {
-                
-                state = STATE_XMPP_OPENING;
-            }
-        }};
-        
-        if (dispatch_get_specific(xmppQueueTag))
-            block();
-        else
-            dispatch_sync(xmppQueue, block);
-        
-        if (errPtr)
-            *errPtr = err;
-        
-        return result;
-    }
-    else {
-        XMPPLogTrace();
-        
-        __block BOOL result = NO;
-        __block NSError *err = nil;
-        
-        dispatch_block_t block = ^{ @autoreleasepool {
-            
-            if (state != STATE_XMPP_DISCONNECTED)
-            {
-                NSString *errMsg = @"Attempting to connect while already connected or connecting.";
-                NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
-                
-                err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamInvalidState userInfo:info];
-                
-                result = NO;
-                return_from_block;
-            }
+            state = STATE_XMPP_OPENING;
+        }
+        else {
             
             if ([self isP2P])
             {
@@ -1372,18 +1228,18 @@ enum XMPPStreamConfig
             {
                 [self startConnectTimeout:timeout];
             }
-        }};
-        
-        if (dispatch_get_specific(xmppQueueTag))
-            block();
-        else
-            dispatch_sync(xmppQueue, block);
-        
-        if (errPtr)
-            *errPtr = err;
-        
-        return result;
-    }
+        }
+    }};
+    
+    if (dispatch_get_specific(xmppQueueTag))
+        block();
+    else
+        dispatch_sync(xmppQueue, block);
+    
+    if (errPtr)
+        *errPtr = err;
+    
+    return result;
 }
 
 - (BOOL)oldSchoolSecureConnectWithTimeout:(NSTimeInterval)timeout error:(NSError **)errPtr
@@ -3875,6 +3731,10 @@ enum XMPPStreamConfig
             [self startStandardBinding];
             // Revert back to connected state (from authenticating state)
             state = STATE_XMPP_CONNECTED;
+        
+            if (_bosh) {
+                _bosh.connected = YES;
+            }
             
             [multicastDelegate xmppStreamDidAuthenticate:self];
         }
@@ -5023,7 +4883,7 @@ completionHandler:(void (^)(BOOL shouldTrustPeer))completionHandler
                                tag:TAG_XMPP_WRITE_STREAM];
             
             // Force update the lastSendReceiveTime here just to be safe.
-            // 
+            //
             // In case the TCP socket comes to a crawl with a giant element in the queue,
             // which would prevent the socket:didWriteDataWithTag: method from being called for some time.
             
@@ -5387,12 +5247,12 @@ static const uint32_t receipt_success = 1 << 1;
         timeout_nanos = dispatch_time(DISPATCH_TIME_NOW, (timeout_seconds * NSEC_PER_SEC));
     
     // dispatch_semaphore_wait
-    // 
+    //
     // Decrement the counting semaphore. If the resulting value is less than zero,
     // this function waits in FIFO order for a signal to occur before returning.
-    // 
+    //
     // Returns zero on success, or non-zero if the timeout occurred.
-    // 
+    //
     // Note: If the timeout occurs, the semaphore value is incremented (without signaling).
     
     long result = dispatch_semaphore_wait(semaphore, timeout_nanos);
