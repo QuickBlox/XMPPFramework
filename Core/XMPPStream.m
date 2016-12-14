@@ -227,7 +227,6 @@ enum XMPPStreamConfig
         hostName = host;
         hostPort = port;
         
-        _bosh = [[QBBoshTransport alloc] initWithDelegate:self host:host port:port];
     }
     return self;
 }
@@ -245,6 +244,7 @@ enum XMPPStreamConfig
 - (void)boshTransport:(QBBoshTransport *)boshTransport
            didConnect:(BOOL)didConnect {
     
+    [self endConnectTimeout];
     rootElement = [self newRootElement];
     // Update state - we're now onto stream negotiations
     state = STATE_XMPP_NEGOTIATING;
@@ -254,6 +254,71 @@ enum XMPPStreamConfig
 - (void)boshTransport:(QBBoshTransport *)boshTransport didReceiveStanza:(NSXMLElement *)element {
     
     dispatch_block_t block = ^{ @autoreleasepool {
+        
+        NSString *elementName = [element name];
+        
+        if ([elementName isEqualToString:@"stream:error"] || [elementName isEqualToString:@"error"]) {
+            
+            // Update state
+            state = STATE_XMPP_DISCONNECTED;
+            
+            // Release the parser (to free underlying resources)
+            [parser setDelegate:nil delegateQueue:NULL];
+            parser = nil;
+            
+            // Clear any saved authentication information
+            auth = nil;
+            
+            authenticationDate = nil;
+            
+            // Clear stored elements
+            myJID_setByServer = nil;
+            myPresence = nil;
+            rootElement = nil;
+            
+            // Stop the keep alive timer
+            if (keepAliveTimer)
+            {
+                dispatch_source_cancel(keepAliveTimer);
+                keepAliveTimer = NULL;
+            }
+            
+            // Clear srv results
+            srvResolver = nil;
+            srvResults = nil;
+            
+            // Stop tracking IDs
+            [idTracker removeAllIDs];
+            
+            // Clear any pending receipts
+            for (XMPPElementReceipt *receipt in receipts)
+            {
+                [receipt signalFailure];
+            }
+            [receipts removeAllObjects];
+            
+            // Clear flags
+            flags = 0;
+            
+            // Notify delegate
+            
+            if (parserError || otherError)
+            {
+                NSError *error = parserError ? : otherError;
+                
+                [multicastDelegate xmppStreamDidDisconnect:self withError:error];
+                
+                parserError = nil;
+                otherError = nil;
+            }
+            else
+            {
+                [multicastDelegate xmppStreamDidDisconnect:self withError:nil];
+            }
+            _bosh = nil;
+            
+            return;
+        }
         
             [self xmppParser:nil didReadElement:element];
         }
@@ -1131,8 +1196,8 @@ enum XMPPStreamConfig
             return_from_block;
         }
         
-        if (_bosh) {
-            
+        if (!_bosh) {
+             _bosh = [[QBBoshTransport alloc] initWithDelegate:self host:hostName port:hostPort];
             // Notify delegates
             [multicastDelegate xmppStreamWillConnect:self];
             // Open TCP connection to the configured hostName.
@@ -1149,6 +1214,8 @@ enum XMPPStreamConfig
             }
             
             state = STATE_XMPP_OPENING;
+            
+            [self startConnectTimeout:timeout];
         }
         else {
             
