@@ -1205,7 +1205,7 @@ enum XMPPStreamConfig
             
             NSAssert(dispatch_get_specific(xmppQueueTag), @"Invoked on incorrect queue");
             
-            [_bosh connectWithUser:self.myJID];
+            result = [_bosh connectWithUser:self.myJID];
             
             if ([self resetByteCountPerConnection]) {
                 
@@ -1834,7 +1834,7 @@ enum XMPPStreamConfig
         
         if (_bosh) {
             
-            [_bosh sendStanza:iq];
+            [_bosh sendStanza:iq tag:TAG_XMPP_WRITE_STREAM];
             
         } else {
             
@@ -2571,7 +2571,7 @@ enum XMPPStreamConfig
     
     if (_bosh) {
         
-        [_bosh sendStanza:iq];
+        [_bosh sendStanza:iq tag:tag];
         
     } else {
         
@@ -2596,7 +2596,7 @@ enum XMPPStreamConfig
     
     if (_bosh) {
         
-        [_bosh sendStanza:message];
+        [_bosh sendStanza:message tag:tag];
         
     } else {
         
@@ -2621,7 +2621,7 @@ enum XMPPStreamConfig
     
     if (_bosh) {
         
-        [_bosh sendStanza:presence];
+        [_bosh sendStanza:presence tag:tag];
         
     } else {
         
@@ -2661,7 +2661,7 @@ enum XMPPStreamConfig
     
     if (_bosh) {
         
-        [_bosh sendStanza:element];
+        [_bosh sendStanza:element tag:tag];
         
     } else {
         
@@ -2899,7 +2899,7 @@ enum XMPPStreamConfig
         {
             if (_bosh) {
                 
-                [_bosh sendStanza:element];
+                [_bosh sendStanza:element tag:TAG_XMPP_WRITE_STREAM];
                 
             } else {
                 
@@ -2942,7 +2942,7 @@ enum XMPPStreamConfig
             
             if (_bosh) {
                 
-                [_bosh sendStanza:element];
+                [_bosh sendStanza:element tag:TAG_XMPP_WRITE_STREAM];
                 
             } else {
                 
@@ -3996,7 +3996,7 @@ enum XMPPStreamConfig
         
         if (_bosh) {
             
-            [_bosh sendStanza:iq];
+            [_bosh sendStanza:iq tag:TAG_XMPP_WRITE_STREAM];
             
         } else {
             
@@ -4028,7 +4028,7 @@ enum XMPPStreamConfig
         
         if (_bosh) {
             
-            [_bosh sendStanza:iq];
+            [_bosh sendStanza:iq tag:TAG_XMPP_WRITE_STREAM];
             
         } else {
             
@@ -4164,7 +4164,7 @@ enum XMPPStreamConfig
         
         if (_bosh) {
             
-            [_bosh sendStanza:iq];
+            [_bosh sendStanza:iq tag:TAG_XMPP_WRITE_STREAM];
             
         } else {
             
@@ -4197,7 +4197,7 @@ enum XMPPStreamConfig
         
         if (_bosh) {
             
-            [_bosh sendStanza:iq];
+            [_bosh sendStanza:iq tag:TAG_XMPP_WRITE_STREAM];
             
         } else {
             
@@ -4242,7 +4242,7 @@ enum XMPPStreamConfig
         
         if (_bosh) {
             
-            [_bosh sendStanza:iq];
+            [_bosh sendStanza:iq tag:TAG_XMPP_WRITE_STREAM];
             
         } else {
             
