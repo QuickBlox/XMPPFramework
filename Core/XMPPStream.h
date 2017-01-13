@@ -1111,4 +1111,8 @@ extern const NSTimeInterval XMPPStreamTimeoutNone;
 - (void)xmppStream:(XMPPStream *)sender didSendCustomElement:(NSXMLElement *)element;
 - (void)xmppStream:(XMPPStream *)sender didReceiveCustomElement:(NSXMLElement *)element;
 
+
+//MARK: BOSH
+- (void)xmppStream:(XMPPStream *)sender boshDidSentMessage:(XMPPMessage *)message;
+
 @end

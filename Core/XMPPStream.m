@@ -251,6 +251,11 @@ enum XMPPStreamConfig
     // Note: We're waiting for the <stream:features> now
 }
 
+- (void)didCompleteRequest {
+    
+    
+}
+
 - (void)boshTransport:(QBBoshTransport *)boshTransport didReceiveStanza:(NSXMLElement *)element {
     
     dispatch_block_t block = ^{ @autoreleasepool {
@@ -330,7 +335,7 @@ enum XMPPStreamConfig
     }
     else
     {
-        dispatch_sync(xmppQueue, ^{
+        dispatch_async(xmppQueue, ^{
             block();
         });
     }
@@ -2612,6 +2617,12 @@ enum XMPPStreamConfig
     }
     
     [multicastDelegate xmppStream:self didSendMessage:message];
+    
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        
+        [multicastDelegate xmppStream:self boshDidSentMessage:message];
+    });
 }
 
 - (void)continueSendPresence:(XMPPPresence *)presence withTag:(long)tag
@@ -4632,7 +4643,7 @@ completionHandler:(void (^)(BOOL shouldTrustPeer))completionHandler
     if (sender != parser) return;
     
     XMPPLogTrace();
-    XMPPLogRecvPost(@"RECV: %@", [root compactXMLString]);
+//    XMPPLogRecvPost(@"RECV: %@", [root compactXMLString]);
     
     // At this point we've sent our XML stream header, and we've received the response XML stream header.
     // We save the root element of our stream for future reference.
@@ -4729,7 +4740,7 @@ completionHandler:(void (^)(BOOL shouldTrustPeer))completionHandler
     if (sender != parser) return;
     
     XMPPLogTrace();
-    XMPPLogRecvPost(@"RECV: %@", [element compactXMLString]);
+//    XMPPLogRecvPost(@"RECV: %@", [element compactXMLString]);
     
     NSString *elementName = [element name];
     
