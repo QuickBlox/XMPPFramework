@@ -4167,10 +4167,12 @@ enum XMPPStreamConfig
 				result = [asyncSocket enableBackgroundingOnSocket];
 			}];
 			
-			if (result)
-				XMPPLogVerbose(@"%@: Enabled backgrounding on socket", THIS_FILE);
-			else
-				XMPPLogError(@"%@: Error enabling backgrounding on socket!", THIS_FILE);
+            if (result) {
+                XMPPLogVerbose(@"%@: Enabled backgrounding on socket", THIS_FILE);
+            }
+            else {
+                XMPPLogError(@"%@: Error enabling backgrounding on socket!", THIS_FILE);
+            }
 		}
 	}
 	#endif

@@ -948,7 +948,7 @@ static dispatch_queue_t cfstreamThreadSetupQueue; // setup & teardown
 #if GCDAsyncSocketLoggingEnabled
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
-            [DDLog addLogger:[DDASLLogger sharedInstance]];
+//            [DDLog addLogger:[DDASLLogger sharedInstance]];
             [DDLog addLogger:[DDTTYLogger sharedInstance]];
         });
 #endif

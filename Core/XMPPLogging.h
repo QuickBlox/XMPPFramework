@@ -60,6 +60,7 @@
 **/
 
 #import "DDLog.h"
+#import "QBSettings_Private.h"
 
 // Global flag to enable/disable logging throughout the entire xmpp framework.
 
@@ -128,20 +129,35 @@
     do{ if(XMPP_LOGGING_ENABLED) LOG_MAYBE(async, lvl, flg, ctx, __FUNCTION__, frmt, ##__VA_ARGS__); } while(0)
 
 
-#define XMPPLogError(frmt, ...)    XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_ERROR,   xmppLogLevel, XMPP_LOG_FLAG_ERROR,  \
-                                                  XMPP_LOG_CONTEXT, frmt, ##__VA_ARGS__)
+#define XMPPLogError(frmt, ...) \
+if([QBSettings logLevel] == QBLogLevelDebug){ \
+    XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_ERROR,   xmppLogLevel, XMPP_LOG_FLAG_ERROR, \
+    XMPP_LOG_CONTEXT, frmt, ##__VA_ARGS__); \
+}
 
-#define XMPPLogWarn(frmt, ...)     XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_WARN,    xmppLogLevel, XMPP_LOG_FLAG_WARN,   \
-                                                  XMPP_LOG_CONTEXT, frmt, ##__VA_ARGS__)
+#define XMPPLogWarn(frmt, ...) \
+if([QBSettings logLevel] == QBLogLevelDebug){ \
+    XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_WARN, xmppLogLevel, XMPP_LOG_FLAG_WARN,   \
+    XMPP_LOG_CONTEXT, frmt, ##__VA_ARGS__); \
+}
 
-#define XMPPLogInfo(frmt, ...)     XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_INFO,    xmppLogLevel, XMPP_LOG_FLAG_INFO,    \
-                                                  XMPP_LOG_CONTEXT, frmt, ##__VA_ARGS__)
+#define XMPPLogInfo(frmt, ...) \
+if([QBSettings logLevel] == QBLogLevelDebug){ \
+    XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_INFO, xmppLogLevel, XMPP_LOG_FLAG_INFO, \
+    XMPP_LOG_CONTEXT, frmt, ##__VA_ARGS__); \
+}
 
-#define XMPPLogVerbose(frmt, ...)  XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_VERBOSE, xmppLogLevel, XMPP_LOG_FLAG_VERBOSE, \
-                                                  XMPP_LOG_CONTEXT, frmt, ##__VA_ARGS__)
+#define XMPPLogVerbose(frmt, ...) \
+if([QBSettings logLevel] == QBLogLevelDebug){ \
+    XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_VERBOSE, xmppLogLevel, XMPP_LOG_FLAG_VERBOSE, \
+    XMPP_LOG_CONTEXT, frmt, ##__VA_ARGS__); \
+}
 
-#define XMPPLogTrace()             XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_TRACE,   xmppLogLevel, XMPP_LOG_FLAG_TRACE, \
-                                                  XMPP_LOG_CONTEXT, @"%@: %@", THIS_FILE, THIS_METHOD)
+#define XMPPLogTrace() \
+if([QBSettings logLevel] == QBLogLevelDebug){ \
+    XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_TRACE,   xmppLogLevel, XMPP_LOG_FLAG_TRACE, \
+    XMPP_LOG_CONTEXT, @"%@: %@", THIS_FILE, THIS_METHOD); \
+}
 
 #define XMPPLogTrace2(frmt, ...)   XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_TRACE,   xmppLogLevel, XMPP_LOG_FLAG_TRACE, \
                                                   XMPP_LOG_CONTEXT, frmt, ##__VA_ARGS__)
@@ -181,11 +197,20 @@
 #define XMPP_LOG_ASYNC_RECV_PRE  (YES && XMPP_LOG_ASYNC_ENABLED)
 #define XMPP_LOG_ASYNC_RECV_POST (YES && XMPP_LOG_ASYNC_ENABLED)
 
-#define XMPPLogSend(format, ...)     XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_SEND, xmppLogLevel, \
-                                                XMPP_LOG_FLAG_SEND, XMPP_LOG_CONTEXT, format, ##__VA_ARGS__)
+#define XMPPLogSend(format, ...) \
+if([QBSettings logLevel] == QBLogLevelDebug){ \
+    XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_SEND, xmppLogLevel, \
+    XMPP_LOG_FLAG_SEND, XMPP_LOG_CONTEXT, format, ##__VA_ARGS__);\
+}
 
-#define XMPPLogRecvPre(format, ...)  XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_RECV_PRE, xmppLogLevel, \
-                                                XMPP_LOG_FLAG_RECV_PRE, XMPP_LOG_CONTEXT, format, ##__VA_ARGS__)
+#define XMPPLogRecvPre(format, ...)  \
+if([QBSettings logLevel] == QBLogLevelDebug){ \
+    XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_RECV_PRE, xmppLogLevel, \
+    XMPP_LOG_FLAG_RECV_PRE, XMPP_LOG_CONTEXT, format, ##__VA_ARGS__); \
+}
 
-#define XMPPLogRecvPost(format, ...) XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_RECV_POST, xmppLogLevel, \
-                                                XMPP_LOG_FLAG_RECV_POST, XMPP_LOG_CONTEXT, format, ##__VA_ARGS__)
+#define XMPPLogRecvPost(format, ...) \
+if([QBSettings logLevel] == QBLogLevelDebug){ \
+    XMPP_LOG_OBJC_MAYBE(XMPP_LOG_ASYNC_RECV_POST, xmppLogLevel, \
+    XMPP_LOG_FLAG_RECV_POST, XMPP_LOG_CONTEXT, format, ##__VA_ARGS__);\
+}
