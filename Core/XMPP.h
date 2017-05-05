@@ -16,13 +16,13 @@
 
 #import "XMPPSASLAuthentication.h"
 #import "XMPPCustomBinding.h"
-#import "XMPPDigestMD5Authentication.h"
-#import "XMPPSCRAMSHA1Authentication.h"
+//#import "XMPPDigestMD5Authentication.h"
+//#import "XMPPSCRAMSHA1Authentication.h"
 #import "XMPPPlainAuthentication.h"
-#import "XMPPXFacebookPlatformAuthentication.h"
-#import "XMPPAnonymousAuthentication.h"
-#import "XMPPDeprecatedPlainAuthentication.h"
-#import "XMPPDeprecatedDigestAuthentication.h"
+//#import "XMPPXFacebookPlatformAuthentication.h"
+//#import "XMPPAnonymousAuthentication.h"
+//#import "XMPPDeprecatedPlainAuthentication.h"
+//#import "XMPPDeprecatedDigestAuthentication.h"
 
 // 
 // Categories

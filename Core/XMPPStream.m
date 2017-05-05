@@ -1944,6 +1944,21 @@ enum XMPPStreamConfig
 		
 		id <XMPPSASLAuthentication> someAuth = nil;
         
+        if ([self supportsPlainAuthentication])
+        {
+            someAuth = [[XMPPPlainAuthentication alloc] initWithStream:self password:password];
+            result = [self authenticate:someAuth error:&err];
+        }
+        else
+        {
+            NSString *errMsg = @"No suitable authentication method found";
+            NSDictionary *info = @{NSLocalizedDescriptionKey : errMsg};
+            
+            err = [NSError errorWithDomain:XMPPStreamErrorDomain code:XMPPStreamUnsupportedAction userInfo:info];
+            
+            result = NO;
+        }
+        /*
 		if ([self supportsSCRAMSHA1Authentication])
 		{
 			someAuth = [[XMPPSCRAMSHA1Authentication alloc] initWithStream:self password:password];
@@ -1978,6 +1993,7 @@ enum XMPPStreamConfig
 			
 			result = NO;
 		}
+         */
 	}};
 	
 	
