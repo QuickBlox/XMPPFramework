@@ -7049,7 +7049,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
     // 9. GCDAsyncSocketSSLDiffieHellmanParameters
     
 #if !TARGET_OS_IPHONE
-    value = [tlsSettings objectForKey:GCDAsyncSocketSSLDiffieHellmanParameters];
+    value = [tlsSettings objectForKey:QBGCDAsyncSocketSSLDiffieHellmanParameters];
     if ([value isKindOfClass:[NSData class]])
     {
         NSData *diffieHellmanData = (NSData *)value;
