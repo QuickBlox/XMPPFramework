@@ -382,7 +382,7 @@
 			result = XMPP_USER_REMOVED_RESOURCE;
 		}
 	}
-	else if ([presenceType isEqualToString:@"available"])
+	else
 	{
 		resource = resources[key];
 		if (resource)
