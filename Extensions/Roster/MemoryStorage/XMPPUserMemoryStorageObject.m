@@ -366,6 +366,16 @@
            andGetResource:(XMPPResourceMemoryStorageObject **)resourcePtr
 {
 	int result = XMPP_USER_NO_CHANGE;
+    
+    if (![[presence from] isFull]) {
+        // The issue seems that the subscribed presence when the contact approves the request
+        // is send from the bare JID and future updates are send from the full JID.
+        // Thus the resourceForJID call in updateWithPresence returns nil and a new resource
+        // is created instead of updating an existing one. However, as future updates are
+        // send from the the full JID, the bare JID resource is never touched again.
+        return result;
+    }
+    
 	XMPPResourceMemoryStorageObject *resource;
 	
 	XMPPJID *key = [presence from];
