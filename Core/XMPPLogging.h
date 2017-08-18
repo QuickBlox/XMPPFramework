@@ -72,7 +72,7 @@
 // The logging context can be extracted from the DDLogMessage from within the logging framework.
 // This gives loggers, formatters, and filters the ability to optionally process them differently.
 
-#define XMPP_LOG_CONTEXT 5222
+#define XMPP_LOG_CONTEXT 5223
 
 // Configure log levels.
 
@@ -94,7 +94,6 @@
 // Tracing can be turned on and off independently of log level.
 
 #define XMPP_LOG_FLAG_TRACE     (1 << 4) // 0...10000
-
 // Setup the usual boolean macros.
 
 #define XMPP_LOG_ERROR   (xmppLogLevel & XMPP_LOG_FLAG_ERROR)
