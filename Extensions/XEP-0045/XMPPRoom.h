@@ -303,6 +303,10 @@ static NSString *const XMPPMUCOwnerNamespace = @"http://jabber.org/protocol/muc#
 - (void)xmppRoom:(XMPPRoom *)sender occupantDidJoin:(XMPPJID *)occupantJID withPresence:(XMPPPresence *)presence;
 - (void)xmppRoom:(XMPPRoom *)sender occupantDidLeave:(XMPPJID *)occupantJID withPresence:(XMPPPresence *)presence;
 - (void)xmppRoom:(XMPPRoom *)sender occupantDidUpdate:(XMPPJID *)occupantJID withPresence:(XMPPPresence *)presence;
+- (void)xmppRoom:(XMPPRoom *)sender didKickOccupant:(XMPPJID *)occupantJID withPresence:(XMPPPresence *)presence;
+
+
+
 
 /**
  * Invoked when a message is received.
