@@ -991,6 +991,7 @@ enum XMPPRoomState
 	BOOL isMyPresence = NO;
 	BOOL didCreateRoom = NO;
 	BOOL isNicknameChange = NO;
+    BOOL isKick = NO;
 	
 	for (NSXMLElement *status in [x elementsForName:@"status"])
 	{
@@ -998,6 +999,7 @@ enum XMPPRoomState
 		{
 			case 110 : isMyPresence = YES;     break;
 			case 201 : didCreateRoom = YES;    break;
+            case 301: isKick = YES;            break;
 			case 210 :
 			case 303 : isNicknameChange = YES; break;
 		}
@@ -1066,6 +1068,9 @@ enum XMPPRoomState
 			[responseTracker removeAllIDs];
 			
 			[xmppRoomStorage handleDidLeaveRoom:self];
+            if (isKick) {
+                [multicastDelegate xmppRoom:self didKickOccupant:from withPresence:presence];
+            }
 			[multicastDelegate xmppRoomDidLeave:self];
 		}
 	}
@@ -1076,7 +1081,10 @@ enum XMPPRoomState
 			[multicastDelegate xmppRoom:self occupantDidJoin:from withPresence:presence];
 		}
 		else if (isUnavailable)
-		{
+        
+        {if (isKick) {
+            [multicastDelegate xmppRoom:self didKickOccupant:from withPresence:presence];
+        }
 			[multicastDelegate xmppRoom:self occupantDidLeave:from withPresence:presence];
 		}
 	}
