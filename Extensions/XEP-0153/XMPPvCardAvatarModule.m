@@ -94,7 +94,7 @@ NSString *const kXMPPvCardAvatarPhotoElement = @"photo";
 	__block BOOL result = NO;
 	
 	dispatch_block_t block = ^{
-		result = _autoClearMyvcard;
+		result = self->_autoClearMyvcard;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -108,7 +108,7 @@ NSString *const kXMPPvCardAvatarPhotoElement = @"photo";
 - (void)setAutoClearMyvcard:(BOOL)flag
 {
 	dispatch_block_t block = ^{
-		_autoClearMyvcard = flag;
+		self->_autoClearMyvcard = flag;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -132,11 +132,11 @@ NSString *const kXMPPvCardAvatarPhotoElement = @"photo";
 	
 	dispatch_block_t block = ^{ @autoreleasepool {
 		
-		photoData = [_moduleStorage photoDataForJID:jid xmppStream:xmppStream];
+		photoData = [self->_moduleStorage photoDataForJID:jid xmppStream:self->xmppStream];
 		
 		if (photoData == nil) 
 		{
-			[_xmppvCardTempModule vCardTempForJID:jid shouldFetch:YES];
+			[self->_xmppvCardTempModule vCardTempForJID:jid shouldFetch:YES];
 		}
 		
 	}};
