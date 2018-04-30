@@ -180,7 +180,7 @@
 		__block NSString *result;
 		
 		dispatch_sync(moduleQueue, ^{
-			result = myCapabilitiesNode;
+			result = self->myCapabilitiesNode;
 		});
 		
 		return result;
@@ -192,7 +192,7 @@
     NSAssert([flag length], @"myCapabilitiesNode MUST NOT be nil");
 
 	dispatch_block_t block = ^{
-		myCapabilitiesNode = flag;
+		self->myCapabilitiesNode = flag;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -206,7 +206,7 @@
 	__block BOOL result = NO;
 	
 	dispatch_block_t block = ^{
-		result = autoFetchHashedCapabilities;
+		result = self->autoFetchHashedCapabilities;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -220,7 +220,7 @@
 - (void)setAutoFetchHashedCapabilities:(BOOL)flag
 {
 	dispatch_block_t block = ^{
-		autoFetchHashedCapabilities = flag;
+		self->autoFetchHashedCapabilities = flag;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -234,7 +234,7 @@
 	__block BOOL result = NO;
 	
 	dispatch_block_t block = ^{
-		result = autoFetchNonHashedCapabilities;
+		result = self->autoFetchNonHashedCapabilities;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -248,7 +248,7 @@
 - (void)setAutoFetchNonHashedCapabilities:(BOOL)flag
 {
 	dispatch_block_t block = ^{
-		autoFetchNonHashedCapabilities = flag;
+		self->autoFetchNonHashedCapabilities = flag;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -262,7 +262,7 @@
 	__block BOOL result = NO;
 	
 	dispatch_block_t block = ^{
-		result = autoFetchMyServerCapabilities;
+		result = self->autoFetchMyServerCapabilities;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -276,7 +276,7 @@
 - (void)setAutoFetchMyServerCapabilities:(BOOL)flag
 {
 	dispatch_block_t block = ^{
-		autoFetchMyServerCapabilities = flag;
+		self->autoFetchMyServerCapabilities = flag;
 	};
 	
 	if (dispatch_get_specific(moduleQueueTag))
@@ -773,7 +773,7 @@ static NSInteger sortFieldValues(NSXMLElement *value1, NSXMLElement *value2, voi
 				}});
 			}
 						
-			dispatch_async(moduleQueue, ^{ @autoreleasepool {
+			dispatch_async(self->moduleQueue, ^{ @autoreleasepool {
 				
 				[self continueCollectMyCapabilities:query];
 			}});
@@ -878,7 +878,7 @@ static NSInteger sortFieldValues(NSXMLElement *value1, NSXMLElement *value2, voi
 	
 	dispatch_block_t block = ^{ @autoreleasepool {
 		
-		if ([discoRequestJidSet containsObject:jid])
+		if ([self->discoRequestJidSet containsObject:jid])
 		{
 			// We're already requesting capabilities concerning this JID
 			return;
@@ -892,7 +892,7 @@ static NSInteger sortFieldValues(NSXMLElement *value1, NSXMLElement *value2, voi
 		NSString *hash    = nil;
 		NSString *hashAlg = nil;
 		
-		[xmppCapabilitiesStorage getCapabilitiesKnown:&areCapabilitiesKnown
+		[self->xmppCapabilitiesStorage getCapabilitiesKnown:&areCapabilitiesKnown
 		                                       failed:&haveFailedFetchingBefore
 		                                         node:&node
 		                                          ver:&ver
@@ -900,7 +900,7 @@ static NSInteger sortFieldValues(NSXMLElement *value1, NSXMLElement *value2, voi
 		                                         hash:&hash
 		                                    algorithm:&hashAlg
 		                                       forJID:jid
-		                                   xmppStream:xmppStream];
+		                                   xmppStream:self->xmppStream];
 		
 		if (areCapabilitiesKnown)
 		{
@@ -931,7 +931,7 @@ static NSInteger sortFieldValues(NSXMLElement *value1, NSXMLElement *value2, voi
 			// However, there is still a disco request that concerns the jid.
 			
 			key = [self keyFromHash:hash algorithm:hashAlg];
-			NSMutableArray *jids = discoRequestHashDict[key];
+			NSMutableArray *jids = self->discoRequestHashDict[key];
 			
 			if (jids)
 			{
@@ -939,7 +939,7 @@ static NSInteger sortFieldValues(NSXMLElement *value1, NSXMLElement *value2, voi
 				// That is, there is another JID with the same hash, and we've already sent a disco request to it.
 				
 				[jids addObject:jid];
-				[discoRequestJidSet addObject:jid];
+				[self->discoRequestJidSet addObject:jid];
 				
 				return;
 			}
@@ -950,12 +950,12 @@ static NSInteger sortFieldValues(NSXMLElement *value1, NSXMLElement *value2, voi
 			NSNumber *requestIndexNum = @1;
 			jids = [@[requestIndexNum, jid] mutableCopy];
 			
-			discoRequestHashDict[key] = jids;
-			[discoRequestJidSet addObject:jid];
+			self->discoRequestHashDict[key] = jids;
+			[self->discoRequestJidSet addObject:jid];
 		}
 		else
 		{
-			[discoRequestJidSet addObject:jid];
+			[self->discoRequestJidSet addObject:jid];
 		}
 		
 		// Send disco#info query
