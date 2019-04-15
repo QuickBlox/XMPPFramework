@@ -8,7 +8,6 @@
 // Define the various states we'll use to track our progress
 typedef NS_ENUM(NSInteger, XMPPStreamState) {
 	STATE_XMPP_DISCONNECTED,
-	STATE_XMPP_RESOLVING_SRV,
 	STATE_XMPP_CONNECTING,
 	STATE_XMPP_OPENING,
 	STATE_XMPP_NEGOTIATING,
