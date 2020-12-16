@@ -854,10 +854,10 @@ enum XMPPRosterFlags
 	if ([[presence type] isEqualToString:@"subscribe"])
 	{
 		XMPPJID *userJID = [[presence from] bareJID];
+		// Issue when the current user is in offline and his contact remove him and then add the user to his roster fixed. In this case contact contate in user's roster and need check contact's subscription state before starting auto subscription flow.
+		BOOL isSubscribed = [xmppRosterStorage userSubscribedWithJID:userJID xmppStream:xmppStream];
 		
-		BOOL knownUser = [xmppRosterStorage userExistsWithJID:userJID xmppStream:xmppStream];
-		
-		if (knownUser && [self autoAcceptKnownPresenceSubscriptionRequests])
+		if (isSubscribed && [self autoAcceptKnownPresenceSubscriptionRequests])
 		{
 			// Presence subscription request from someone who's already in our roster.
 			// Automatically approve.

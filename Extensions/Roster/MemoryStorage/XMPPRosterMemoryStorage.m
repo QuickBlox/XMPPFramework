@@ -773,6 +773,17 @@
 	return (rosterUser != nil);
 }
 
+- (BOOL)userSubscribedWithJID:(XMPPJID *)jid xmppStream:(XMPPStream *)stream
+{
+    XMPPLogTrace();
+    AssertParentQueue();
+    
+    XMPPJID *jidKey = [jid bareJID];
+    XMPPUserMemoryStorageObject *rosterUser = roster[jidKey];
+    
+    return [rosterUser.subscription isEqualToString:@"to"];
+}
+
 #if TARGET_OS_IPHONE
 - (void)setPhoto:(UIImage *)photo forUserWithJID:(XMPPJID *)jid xmppStream:(XMPPStream *)stream
 #else

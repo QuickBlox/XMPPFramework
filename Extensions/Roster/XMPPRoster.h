@@ -330,6 +330,7 @@
 - (void)handlePresence:(XMPPPresence *)presence xmppStream:(XMPPStream *)stream;
 
 - (BOOL)userExistsWithJID:(XMPPJID *)jid xmppStream:(XMPPStream *)stream;
+- (BOOL)userSubscribedWithJID:(XMPPJID *)jid xmppStream:(XMPPStream *)stream;
 
 - (void)clearAllResourcesForXMPPStream:(XMPPStream *)stream;
 - (void)clearAllUsersAndResourcesForXMPPStream:(XMPPStream *)stream;
