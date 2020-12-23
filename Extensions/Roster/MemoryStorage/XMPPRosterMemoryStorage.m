@@ -780,8 +780,11 @@
     
     XMPPJID *jidKey = [jid bareJID];
     XMPPUserMemoryStorageObject *rosterUser = roster[jidKey];
-    
-    return [rosterUser.subscription isEqualToString:@"to"];
+    if (rosterUser == nil) {
+        return NO;
+    }
+    BOOL isSubscribed = [rosterUser.subscription isEqualToString:@"to"];
+    return  isSubscribed;
 }
 
 #if TARGET_OS_IPHONE
